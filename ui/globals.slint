@@ -1,0 +1,50 @@
+import { Palette } from "std-widgets.slint";
+
+export global ApplicationGlobal {
+    out property <string> window_title: "LR2 launcher";
+
+    // Home page
+    in property <[string]> players;
+    in-out property <string> lr2_path;
+    in-out property <int> window_x;
+    in-out property <int> window_y;
+    in-out property <int> screenmode;
+    in-out property <int> autoreload;
+    in-out property <bool> disable_score_save;
+    in-out property <bool> preview;
+
+    // Jukebox
+    in property <[StandardListViewItem]> jukebox_paths;
+
+    // Play
+    in-out property <int> hsmin;
+    in-out property <int> hsmax;
+    in-out property <int> hsmargin;
+    in-out property <int> shuttermargin;
+    in-out property <int> basespeed;
+    in-out property <bool> folderlamp;
+
+    in-out property <bool> folder_random;
+    in-out property <bool> folder_favorite;
+    in-out property <bool> folder_ignored;
+    in-out property <bool> folder_top10;
+    in-out property <bool> folder_level;
+    in-out property <bool> folder_cleartype;
+    in-out property <bool> folder_playrank;
+    in-out property <bool> folder_insanebms;
+
+    in-out property <int> searchmax;
+    in-out property <int> poorbga;
+    in-out property <int> inputinterval;
+
+    // System
+    in-out property <bool> vsync;
+    in-out property <int> audiooutput;
+    in property <[string]> drivers;
+    in-out property <int> selecteddriver;
+    in-out property <int> bufferlength;
+    in-out property <bool> disablefmod;
+
+    // Launcher settings
+    in-out property <bool> darkmode;
+}

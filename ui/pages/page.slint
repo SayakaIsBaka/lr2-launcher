@@ -1,0 +1,30 @@
+import { Switch, HorizontalBox, VerticalBox, Palette } from "std-widgets.slint";
+import { ApplicationGlobal } from "../globals.slint";
+
+export component Page inherits VerticalBox {
+    in property <string> title: "title";
+    in property <string> description: "description";
+
+    accessible-role: tab-panel;
+    accessible-label: root.title;
+
+    HorizontalBox {
+        Text {
+            font-size: 20px;
+            text <=> root.title;
+        }
+
+        Rectangle { }
+
+        Switch {
+            horizontal-stretch: 0;
+            text: @tr("Dark Mode");
+            checked <=> ApplicationGlobal.darkmode;
+            toggled => {
+                Palette.color-scheme = ApplicationGlobal.darkmode ? ColorScheme.dark : ColorScheme.light;
+            }
+        }
+    }
+
+    @children
+}

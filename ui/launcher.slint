@@ -1,0 +1,50 @@
+import {
+    HomePage,
+    PlayOptionsPage,
+    SystemOptionsPage,
+    JukeboxPage,
+} from "pages/pages.slint";
+import { SideBar } from "side_bar.slint";
+import { Button, ComboBox, Palette } from "std-widgets.slint";
+import { ApplicationGlobal } from "globals.slint";
+
+export { Palette, ColorScheme }
+export { ApplicationGlobal }
+
+export component App inherits Window {
+    preferred-width: 800px;
+    preferred-height: 650px;
+    default-font-family: "Segoe UI";
+    title: ApplicationGlobal.window_title;
+    //icon: @image-url("../../logo/slint-logo-small-light.png");
+
+    callback audio_type_change();
+
+    HorizontalLayout {
+        side-bar := SideBar {
+            accessible-role: navigation;
+            accessible-label: @tr("Sidebar");
+            title: @tr("LR2 launcher");
+            model: [
+                @tr("Menu" => "Home"),
+                @tr("Menu" => "Jukebox"),
+                @tr("Menu" => "Play options"),
+                @tr("Menu" => "System options")
+            ];
+            Button {
+                text: @tr("Start game");
+                primary: true;
+            }
+        }
+
+        VerticalLayout {
+            accessible-role: main;
+            accessible-label: @tr("Content");
+
+            if(side-bar.current-item == 0): HomePage { }
+            if(side-bar.current-item == 1): JukeboxPage { }
+            if(side-bar.current-item == 2): PlayOptionsPage { }
+            if(side-bar.current-item == 3): SystemOptionsPage { audio_type_change => {root.audio_type_change()} }
+        }
+    }
+}

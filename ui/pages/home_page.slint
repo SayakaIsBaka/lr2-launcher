@@ -1,0 +1,112 @@
+import {
+    Button,
+    GroupBox,
+    ComboBox,
+    VerticalBox,
+    HorizontalBox,
+    GridBox,
+    LineEdit,
+    Switch
+} from "std-widgets.slint";
+import { IntEdit } from "../components/int_edit.slint";
+import { Page } from "page.slint";
+import { ApplicationGlobal } from "../globals.slint";
+
+export component HomePage inherits Page {
+    title: @tr("Home");
+    alignment: start;
+
+    GroupBox {
+        title: @tr("Player");
+        HorizontalBox {
+            ComboBox {
+                model: ApplicationGlobal.players;
+            }
+            Button {
+                text: @tr("+");
+                Tooltip {
+                    text: @markdown("\{@tr("Add player")}");
+                }
+            }
+            Button {
+                text: @tr("-");
+                Tooltip {
+                    text: @markdown("\{@tr("Remove player")}");
+                }
+            }
+        }
+    }
+
+    GroupBox {
+        title: @tr("Resolution");
+        GridBox {
+            IntEdit {
+                min: 0;
+                max: 9999;
+                placeholder-text: "X";
+                max-width: 50px;
+                value <=> ApplicationGlobal.window_x;
+            }
+            Text {
+                text: "x";
+                vertical-alignment: center;
+            }
+            IntEdit {
+                min: 0;
+                max: 9999;
+                placeholder-text: "Y";
+                max-width: 50px;
+                value <=> ApplicationGlobal.window_y;
+            }
+            HorizontalLayout {
+                alignment: end;
+                ComboBox {
+                    model: [@tr("Fullscreen"), @tr("Windowed"), @tr("Borderless Fullscreen")];
+                    current-index <=> ApplicationGlobal.screenmode;
+                }
+            }
+        }
+    }
+
+    GroupBox {
+        title: @tr("LR2 path");
+        HorizontalBox {
+            LineEdit {
+                enabled: false;
+                text: ApplicationGlobal.lr2_path;
+            }
+            Button {
+                text: @tr("Set LR2 Path");
+            }
+        }
+    }
+
+    GroupBox {
+        title: @tr("Misc");
+        HorizontalBox {
+            VerticalBox {
+                Switch {
+                    text: @tr("Disable score saving");
+                    checked <=> ApplicationGlobal.disable_score_save;
+                }
+                Switch {
+                    text: @tr("Enable song preview");
+                    checked <=> ApplicationGlobal.preview;
+                }
+                HorizontalLayout {
+                    alignment: start;
+                    spacing: 10px;
+                    Text {
+                        vertical-alignment: center;
+                        text: @tr("Database reload type");
+                    }
+                    ComboBox {
+                        width: 150px;
+                        model: [@tr("Manual"), @tr("Auto Type 1"), @tr("Auto Type 2")];
+                        current-index <=> ApplicationGlobal.autoreload;
+                    }
+                }
+            }
+        }
+    }
+}

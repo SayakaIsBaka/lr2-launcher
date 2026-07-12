@@ -1,0 +1,41 @@
+import {
+    Button,
+    HorizontalBox,
+    GroupBox,
+    VerticalBox,
+} from "std-widgets.slint";
+
+import { JukeboxListView } from "../components/jukebox.slint";
+
+import { Page } from "page.slint";
+import { ApplicationGlobal } from "../globals.slint";
+
+export component JukeboxPage inherits Page {
+    title: @tr("Jukebox");
+
+    GroupBox {
+        VerticalBox {
+            HorizontalLayout {
+            StyledText {
+                vertical-alignment: center;
+                //text: @markdown("*\{@tr("Drag and drop folders to add BMS paths.")}*");
+            }
+            HorizontalBox {
+                alignment: end;
+                Button {
+                    text: "Add";
+                }
+                Button {
+                    text: "Delete";
+                }
+            }
+        }
+            DropArea {
+                // TODO: folder drag and drop (when it's implemented in Slint)
+                JukeboxListView {
+                    model: ApplicationGlobal.jukebox_paths;
+                }
+            }
+        }
+    }
+}

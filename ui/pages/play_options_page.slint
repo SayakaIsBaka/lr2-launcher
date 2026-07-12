@@ -1,0 +1,175 @@
+import {
+    GroupBox,
+    CheckBox,
+    HorizontalBox,
+    GridBox
+} from "std-widgets.slint";
+import { IntEdit } from "../components/int_edit.slint";
+import { Page } from "page.slint";
+import { ApplicationGlobal } from "../globals.slint";
+
+export component PlayOptionsPage inherits Page {
+    title: @tr("Play options");
+    alignment: start;
+
+    GroupBox {
+        title: @tr("Scroll settings");
+
+        GridBox {
+            Row {
+                Text {
+                    vertical-alignment: center;
+                    text: @tr("HISPEED Min");
+                }
+                IntEdit {
+                    min: 0;
+                    max: 20000;
+                    value <=> ApplicationGlobal.hsmin;
+                }
+                Rectangle { width: 10px; }
+                Text {
+                    vertical-alignment: center;
+                    text: @tr("HISPEED Max");
+                }
+                IntEdit {
+                    min: 0;
+                    max: 20000;
+                    value <=> ApplicationGlobal.hsmax;
+                }
+            }
+
+            Row {
+                Text {
+                    vertical-alignment: center;
+                    text: @tr("HISPEED Margin");
+                }
+                IntEdit {
+                    min: 0;
+                    max: 9999;
+                    value <=> ApplicationGlobal.hsmargin;
+                }
+                Rectangle { width: 10px; }
+                Text {
+                    vertical-alignment: center;
+                    text: @tr("Lane Cover Margin");
+                }
+                IntEdit {
+                    min: 0;
+                    max: 9999;
+                    value <=> ApplicationGlobal.shuttermargin;
+                }
+            }
+
+            Row {
+                Text {
+                    vertical-alignment: center;
+                    text: @tr("Base speed (%)");
+                }
+                IntEdit {
+                    min: 0;
+                    max: 1000;
+                    value <=> ApplicationGlobal.basespeed;
+                }
+            }
+        }
+    }
+
+    GroupBox {
+        title: @tr("Custom folder settings");
+
+        VerticalLayout {
+            GridBox {
+                Row {
+                    CheckBox {
+                        text: @tr("Enable folder lamp");
+                        checked <=> ApplicationGlobal.folderlamp;
+                    }
+                }
+                Row {
+                    CheckBox {
+                        text: @tr("Random Select");
+                        checked <=> ApplicationGlobal.folder_random;
+                    }
+                    CheckBox {
+                        text: @tr("Level Folder");
+                        checked <=> ApplicationGlobal.folder_level;
+                    }
+                }
+                Row {
+                    CheckBox {
+                        text: @tr("Favorite Folder");
+                        checked <=> ApplicationGlobal.folder_favorite;
+                    }
+                    CheckBox {
+                        text: @tr("Clear Type Folder");
+                        checked <=> ApplicationGlobal.folder_cleartype;
+                    }
+                }
+                Row {
+                    CheckBox {
+                        text: @tr("Ignored Folder");
+                        checked <=> ApplicationGlobal.folder_ignored;
+                    }
+                    CheckBox {
+                        text: @tr("Play Rank Folder");
+                        checked <=> ApplicationGlobal.folder_playrank;
+                    }
+                }
+                Row {
+                    CheckBox {
+                        text: @tr("TOP 10 Playcount Folder");
+                        checked <=> ApplicationGlobal.folder_top10;
+                    }
+                    CheckBox {
+                        text: @tr("Insane (★) BMS Folder");
+                        checked <=> ApplicationGlobal.folder_insanebms;
+                    }
+                }
+            }
+            HorizontalBox {
+                alignment: start;
+                Text {
+                    vertical-alignment: center;
+                    text: @tr("Max displayed items (Folder/Search, 0 = unlimited)");
+                }
+                IntEdit {
+                    width: 100px;
+                    min: 0;
+                    max: 99999;
+                    value <=> ApplicationGlobal.searchmax;
+                }
+            }
+        }
+    }
+
+    GroupBox {
+        title: @tr("Misc");
+
+        GridBox {
+            Row {
+                Text {
+                    vertical-alignment: center;
+                    text: @tr("Minimum input interval (8-16ms)");
+                }
+                IntEdit {
+                    width: 100px;
+                    min: 8;
+                    max: 16;
+                    value <=> ApplicationGlobal.poorbga;
+                }
+            }
+            Row {
+                Text {
+                    vertical-alignment: center;
+                    text: @tr("Miss layer duration (ms)");
+                }
+                IntEdit {
+                    width: 100px;
+                    min: 0;
+                    max: 99999;
+                    value <=> ApplicationGlobal.inputinterval;
+                }
+            }
+        }
+    }
+}

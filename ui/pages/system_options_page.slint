@@ -1,0 +1,72 @@
+import {
+    GroupBox,
+    ComboBox,
+    CheckBox,
+    GridBox,
+} from "std-widgets.slint";
+import { IntEdit } from "../components/int_edit.slint";
+import { Page } from "page.slint";
+import { ApplicationGlobal } from "../globals.slint";
+
+export component SystemOptionsPage inherits Page {
+    title: @tr("System options");
+    alignment: start;
+    callback audio_type_change();
+
+    GroupBox {
+        title: @tr("Display settings");
+        CheckBox {
+            text: @tr("V-Sync");
+            checked <=> ApplicationGlobal.vsync;
+        }
+    }
+
+    GroupBox {
+        title: @tr("Audio settings");
+        GridBox {
+            Row {
+                Text {
+                    width: 25%;
+                    vertical-alignment: center;
+                    text: @tr("Driver type");
+                }
+                ComboBox {
+                    model: ["DirectSound", "WASAPI", "ASIO"];
+                    current-index <=> ApplicationGlobal.audiooutput;
+                    selected(current-value) => {
+                        root.audio_type_change();
+                    }
+                }
+            }
+            Row {
+                Text {
+                    vertical-alignment: center;
+                    text: @tr("Playback driver");
+                }
+                ComboBox {
+                    width: 70%;
+                    model: ApplicationGlobal.drivers;
+                    current-index <=> ApplicationGlobal.selecteddriver;
+                }
+            }
+            Row {
+                Text {
+                    vertical-alignment: center;
+                    text: @tr("Audio buffer size");
+                }
+                IntEdit {
+                    min: 8;
+                    max: 8192;
+                    width: 100px;
+                    value <=> ApplicationGlobal.bufferlength;
+                }
+            }
+            Row {
+                CheckBox {
+                    text: @tr("Disable FMOD Ex");
+                    checked <=> ApplicationGlobal.disablefmod;
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,303 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-07-12 15:12+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ui/launcher.slint:26
+msgctxt "App"
+msgid "Sidebar"
+msgstr ""
+
+#: ui/launcher.slint:27
+msgctxt "App"
+msgid "LR2 launcher"
+msgstr ""
+
+#: ui/launcher.slint:29
+msgctxt "Menu"
+msgid "Home"
+msgstr ""
+
+#: ui/launcher.slint:30
+msgctxt "Menu"
+msgid "Jukebox"
+msgstr ""
+
+#: ui/launcher.slint:31
+msgctxt "Menu"
+msgid "Play options"
+msgstr ""
+
+#: ui/launcher.slint:32
+msgctxt "Menu"
+msgid "System options"
+msgstr ""
+
+#: ui/launcher.slint:35
+msgctxt "App"
+msgid "Start game"
+msgstr ""
+
+#: ui/launcher.slint:42
+msgctxt "App"
+msgid "Content"
+msgstr ""
+
+#: ui/pages/home_page.slint:16
+msgctxt "HomePage"
+msgid "Home"
+msgstr ""
+
+#: ui/pages/home_page.slint:20
+msgctxt "HomePage"
+msgid "Player"
+msgstr ""
+
+#: ui/pages/home_page.slint:26
+msgctxt "HomePage"
+msgid "+"
+msgstr ""
+
+#: ui/pages/home_page.slint:28
+msgctxt "HomePage"
+msgid "Add player"
+msgstr ""
+
+#: ui/pages/home_page.slint:32
+msgctxt "HomePage"
+msgid "-"
+msgstr ""
+
+#: ui/pages/home_page.slint:34
+msgctxt "HomePage"
+msgid "Remove player"
+msgstr ""
+
+#: ui/pages/home_page.slint:41
+msgctxt "HomePage"
+msgid "Resolution"
+msgstr ""
+
+#: ui/pages/home_page.slint:64
+msgctxt "HomePage"
+msgid "Fullscreen"
+msgstr ""
+
+#: ui/pages/home_page.slint:64
+msgctxt "HomePage"
+msgid "Windowed"
+msgstr ""
+
+#: ui/pages/home_page.slint:64
+msgctxt "HomePage"
+msgid "Borderless Fullscreen"
+msgstr ""
+
+#: ui/pages/home_page.slint:72
+msgctxt "HomePage"
+msgid "LR2 path"
+msgstr ""
+
+#: ui/pages/home_page.slint:79
+msgctxt "HomePage"
+msgid "Set LR2 Path"
+msgstr ""
+
+#: ui/pages/home_page.slint:85
+msgctxt "HomePage"
+msgid "Misc"
+msgstr ""
+
+#: ui/pages/home_page.slint:89
+msgctxt "HomePage"
+msgid "Disable score saving"
+msgstr ""
+
+#: ui/pages/home_page.slint:93
+msgctxt "HomePage"
+msgid "Enable song preview"
+msgstr ""
+
+#: ui/pages/home_page.slint:101
+msgctxt "HomePage"
+msgid "Database reload type"
+msgstr ""
+
+#: ui/pages/home_page.slint:105
+msgctxt "HomePage"
+msgid "Manual"
+msgstr ""
+
+#: ui/pages/home_page.slint:105
+msgctxt "HomePage"
+msgid "Auto Type 1"
+msgstr ""
+
+#: ui/pages/home_page.slint:105
+msgctxt "HomePage"
+msgid "Auto Type 2"
+msgstr ""
+
+#: ui/pages/jukebox_page.slint:14
+msgctxt "JukeboxPage"
+msgid "Jukebox"
+msgstr ""
+
+#: ui/pages/page.slint:21
+msgctxt "Page"
+msgid "Dark Mode"
+msgstr ""
+
+#: ui/pages/play_options_page.slint:12
+msgctxt "PlayOptionsPage"
+msgid "Play options"
+msgstr ""
+
+#: ui/pages/play_options_page.slint:16
+msgctxt "PlayOptionsPage"
+msgid "Scroll settings"
+msgstr ""
+
+#: ui/pages/play_options_page.slint:22
+msgctxt "PlayOptionsPage"
+msgid "HISPEED Min"
+msgstr ""
+
+#: ui/pages/play_options_page.slint:32
+msgctxt "PlayOptionsPage"
+msgid "HISPEED Max"
+msgstr ""
+
+#: ui/pages/play_options_page.slint:44
+msgctxt "PlayOptionsPage"
+msgid "HISPEED Margin"
+msgstr ""
+
+#: ui/pages/play_options_page.slint:54
+msgctxt "PlayOptionsPage"
+msgid "Lane Cover Margin"
+msgstr ""
+
+#: ui/pages/play_options_page.slint:66
+msgctxt "PlayOptionsPage"
+msgid "Base speed (%)"
+msgstr ""
+
+#: ui/pages/play_options_page.slint:78
+msgctxt "PlayOptionsPage"
+msgid "Custom folder settings"
+msgstr ""
+
+#: ui/pages/play_options_page.slint:84
+msgctxt "PlayOptionsPage"
+msgid "Enable folder lamp"
+msgstr ""
+
+#: ui/pages/play_options_page.slint:90
+msgctxt "PlayOptionsPage"
+msgid "Random Select"
+msgstr ""
+
+#: ui/pages/play_options_page.slint:94
+msgctxt "PlayOptionsPage"
+msgid "Level Folder"
+msgstr ""
+
+#: ui/pages/play_options_page.slint:100
+msgctxt "PlayOptionsPage"
+msgid "Favorite Folder"
+msgstr ""
+
+#: ui/pages/play_options_page.slint:104
+msgctxt "PlayOptionsPage"
+msgid "Clear Type Folder"
+msgstr ""
+
+#: ui/pages/play_options_page.slint:110
+msgctxt "PlayOptionsPage"
+msgid "Ignored Folder"
+msgstr ""
+
+#: ui/pages/play_options_page.slint:114
+msgctxt "PlayOptionsPage"
+msgid "Play Rank Folder"
+msgstr ""
+
+#: ui/pages/play_options_page.slint:120
+msgctxt "PlayOptionsPage"
+msgid "TOP 10 Playcount Folder"
+msgstr ""
+
+#: ui/pages/play_options_page.slint:124
+msgctxt "PlayOptionsPage"
+msgid "Insane (★) BMS Folder"
+msgstr ""
+
+#: ui/pages/play_options_page.slint:133
+msgctxt "PlayOptionsPage"
+msgid "Max displayed items (Folder/Search, 0 = unlimited)"
+msgstr ""
+
+#: ui/pages/play_options_page.slint:146
+msgctxt "PlayOptionsPage"
+msgid "Misc"
+msgstr ""
+
+#: ui/pages/play_options_page.slint:152
+msgctxt "PlayOptionsPage"
+msgid "Minimum input interval (8-16ms)"
+msgstr ""
+
+#: ui/pages/play_options_page.slint:164
+msgctxt "PlayOptionsPage"
+msgid "Miss layer duration (ms)"
+msgstr ""
+
+#: ui/pages/system_options_page.slint:12
+msgctxt "SystemOptionsPage"
+msgid "System options"
+msgstr ""
+
+#: ui/pages/system_options_page.slint:17
+msgctxt "SystemOptionsPage"
+msgid "Display settings"
+msgstr ""
+
+#: ui/pages/system_options_page.slint:19
+msgctxt "SystemOptionsPage"
+msgid "V-Sync"
+msgstr ""
+
+#: ui/pages/system_options_page.slint:25
+msgctxt "SystemOptionsPage"
+msgid "Audio settings"
+msgstr ""
+
+#: ui/pages/system_options_page.slint:31
+msgctxt "SystemOptionsPage"
+msgid "Driver type"
+msgstr ""
+
+#: ui/pages/system_options_page.slint:44
+msgctxt "SystemOptionsPage"
+msgid "Playback driver"
+msgstr ""
+
+#: ui/pages/system_options_page.slint:55
+msgctxt "SystemOptionsPage"
+msgid "Audio buffer size"
+msgstr ""
+
+#: ui/pages/system_options_page.slint:66
+msgctxt "SystemOptionsPage"
+msgid "Disable FMOD Ex"
+msgstr ""

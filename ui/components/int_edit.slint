@@ -1,0 +1,20 @@
+import { LineEdit } from "std-widgets.slint";
+
+export component IntEdit inherits LineEdit {
+    in property <int> min;
+    in property <int> max;
+    in-out property <int> value;
+
+    input-type: number;
+    text: value;
+
+    edited(text) => {
+        if (text.to-float() > max) {
+            self.text = max;
+        }
+        else if (text.to-float() < min) {
+            self.text = min;
+        }
+        self.value = self.text.to-float();
+    }
+}

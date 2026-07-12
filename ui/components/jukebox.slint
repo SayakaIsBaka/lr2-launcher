@@ -1,0 +1,366 @@
+// All of this copy-paste from the source code of Slint is just to add a prefix to the list, awesome
+
+import { ListView, Palette } from "std-widgets.slint";
+
+export global FluentSizeSettings {
+    out property <length> item-height: 40px;
+}
+
+export global FluentPalette {
+    property <bool> dark-color-scheme: {
+        return Palette.color-scheme == ColorScheme.dark;
+    }
+
+    // base palette
+    out property <brush> background: dark-color-scheme ? #1C1C1C : #FAFAFA;
+    out property <brush> foreground: dark-color-scheme ? #FFFFFF : #000000E6;
+    out property <brush> alternate-background: dark-color-scheme ? #2C2C2C : #f0f0f0;
+    out property <brush> alternate-foreground: dark-color-scheme ? #FFFFFF : #000000E6;
+    out property <brush> control-background: dark-color-scheme ? #FFFFFF0F : #FFFFFFB3;
+    out property <brush> control-foreground: dark-color-scheme ? #FFFFFF : #000000E6;
+    out property <brush> accent-background: dark-color-scheme ? #60CDFF : #005FB8;
+    out property <brush> accent-foreground: dark-color-scheme ? #000000 : #FFFFFF;
+    out property <brush> selection-foreground: dark-color-scheme ? #000000 : #FFFFFF;
+    out property <brush> border: dark-color-scheme ? #FFFFFF14 : #00000073;
+
+    // additional palette
+    out property <brush> secondary-accent-background: accent-background.with-alpha(0.9);
+    out property <brush> tertiary-accent-background: accent-background.with-alpha(0.8);
+    out property <brush> accent-disabled: dark-color-scheme ? #FFFFFF29 : #00000038;
+    out property <brush> accent-control-border: dark-color-scheme ? @linear-gradient(180deg, #FFFFFF14 90.67%, #00000024 100%) : @linear-gradient(180deg, #FFFFFF14 90.67%, #00000066 100%);
+    out property <brush> control-border: dark-color-scheme ? @linear-gradient(180deg, #FFFFFF17 0%, #00000012 8.33%) : @linear-gradient(180deg, #0000000F 90.58%, #00000029 100%);
+    out property <brush> text-accent-foreground-secondary: dark-color-scheme ? #00000080 : #FFFFFFB3;
+    out property <brush> text-accent-foreground-disabled: dark-color-scheme ? #FFFFFF87 : #FFFFFF;
+    out property <brush> text-secondary: dark-color-scheme ? #FFFFFFC9 : #00000099;
+    out property <brush> text-tertiary: dark-color-scheme ? #FFFFFF8A : #00000073;
+    out property <brush> text-disabled: dark-color-scheme ? #FFFFFF5E : #0000005E;
+    out property <brush> text-control-border: dark-color-scheme ? @linear-gradient(180deg, #FFFFFF14 99.98%, #FFFFFF8A 100%, #FFFFFF8A 100%) : @linear-gradient(180deg, #0000000F 99.99%, #00000073 100%, #00000073 100%);
+    out property <brush> control-secondary: dark-color-scheme ? #FFFFFF14 : #F9F9F980;
+    out property <brush> control-tertiary: dark-color-scheme ? #FFFFFF08 : #F9F9F94D;
+    out property <brush> control-disabled: dark-color-scheme ? #FFFFFF0A : #F9F9F94D;
+    out property <brush> control-alt-secondary: dark-color-scheme ? #0000001A : #00000005;
+    out property <brush> control-alt-tertiary: dark-color-scheme ? #FFFFFF0A : #0000000F;
+    out property <brush> control-alt-quaternary: dark-color-scheme ? #FFFFFF12 : #00000017;
+    out property <brush> control-alt-disabled: transparent;
+    out property <brush> control-strong-stroke: dark-color-scheme ? #FFFFFF99 : #00000099;
+    out property <brush> control-strong-stroke-disabled: dark-color-scheme ? #FFFFFF29 : #00000038;
+    out property <brush> control-solid: dark-color-scheme ? #454545 : #FFFFFF;
+    out property <brush> circle-border: dark-color-scheme ? @linear-gradient(180deg, #FFFFFF17 0%, #FFFFFF12 100%) : @linear-gradient(180deg, #0000000F 0%, #00000029 100%);
+    out property <brush> control-input-active: dark-color-scheme ? #1E1E1EB3 : #FFFFFF;
+    out property <brush> focus-stroke-inner: dark-color-scheme ? #000000B3 : #FFFFFF;
+    out property <brush> focus-stroke-outer: dark-color-scheme ? #FFFFFF : #000000E6;
+    out property <brush> control-background-stroke-flyout: dark-color-scheme ? #00000033 : #0000000F;
+    out property <brush> sub-title-secondary: dark-color-scheme ? #FFFFFF0F : #0000000A;
+    out property <brush> sub-title-tertiary: dark-color-scheme ? #FFFFFF0A : #00000005;
+    out property <brush> shadow: dark-color-scheme ? #00000042 : #00000024;
+    out property <brush> subtle: dark-color-scheme ? #FFFFFF0F : #0000000A;
+    out property <brush> subtle-secondary: dark-color-scheme ? #FFFFFF0F : #0000000A;
+    out property <brush> subtle-tertiary: dark-color-scheme ? #FFFFFF0A : #00000005;
+    out property <brush> divider: dark-color-scheme ? #FFFFFF14 : #00000014;
+    out property <brush> layer-on-mica-base-alt: dark-color-scheme ? #3A3A3A73 : #FFFFFFB3;
+    out property <brush> layer-on-mica-base-alt-secondary: dark-color-scheme ? #FFFFFF0F : #0000000A;
+    out property <brush> card-stroke: dark-color-scheme ? #0000001A : #0000000F;
+    out property <brush> state: dark-color-scheme ? #ffffff : #000000;
+    out property <brush> state-secondary: dark-color-scheme ? #000000 : #ffffff;
+}
+
+export component FocusBorder inherits Rectangle {
+    border-width: 2px;
+    border-color: FluentPalette.focus-stroke-outer;
+
+    Rectangle {
+        x: parent.border-width;
+        y: parent.border-width;
+        width: parent.width - 2 * parent.border-width;
+        height: parent.height - 2 * parent.border-width;
+        border-width: 1px;
+        border-radius: parent.border-radius - 2px;
+        border-color: FluentPalette.focus-stroke-inner;
+    }
+}
+
+export component ListItem {
+    in property <bool> is-selected;
+    in property <StandardListViewItem> item;
+    in property <bool> has-focus;
+    in property <bool> has-hover;
+    in property <bool> pressed;
+    in property <int> index;
+    in property <length> pressed-x;
+    in property <length> pressed-y;
+
+    min-width: i-layout.min-width;
+    min-height: max(FluentSizeSettings.item-height, i-layout.min-height);
+    vertical-stretch: 0;
+    horizontal-stretch: 1;
+    accessible-role: list-item;
+    accessible-label: root.item.text;
+    accessible-item-selectable: true;
+    accessible-item-selected: root.is-selected;
+    accessible-item-index: root.index;
+
+    states [
+        pressed when root.pressed : {
+            i-background.background: is-selected ? FluentPalette.subtle-secondary : FluentPalette.subtle-tertiary;
+        }
+        hover when root.has-hover : {
+            i-text.color: FluentPalette.text-secondary;
+            i-background.background: is-selected ? FluentPalette.subtle-tertiary : FluentPalette.subtle-secondary;
+            i-selector.height: root.is-selected ? 16px : 0;
+        }
+        is-selected when root.is-selected : {
+            i-background.background: FluentPalette.subtle-secondary;
+            i-selector.height: 16px;
+        }
+    ]
+
+    if (root.has-focus) : FocusBorder {
+        border-radius: 4px;
+    }
+
+    i-background := Rectangle {
+        width: root.width - 6px;
+        height: root.height - 4px;
+        background: transparent;
+        border-radius: 4px;
+
+        i-layout := HorizontalLayout {
+            padding-left: 16px;
+            padding-right: 16px;
+            spacing: 4px;
+
+            i-text := Text {
+                text: "📁 " + root.item.text;
+                color: FluentPalette.control-foreground;
+                vertical-alignment: center;
+                horizontal-alignment: left;
+                overflow: elide;
+                accessible-role: none;
+
+                animate color { duration: 200ms; }
+            }
+        }
+
+        i-selector := Rectangle {
+            x: 0px;
+            y: (parent.height - self.height) / 2;
+            width: 3px;
+            height: 0px;
+            background: FluentPalette.accent-background;
+            border-radius: 2px;
+        }
+    }
+
+    @children
+}
+
+component StandardListViewBase inherits ListView {
+    in property <[StandardListViewItem]> model;
+    in-out property <int> current-item: -1;
+
+    callback current-item-changed(current-item: int);
+    callback item-pointer-event(item: int, event: PointerEvent, position: Point);
+
+    public function set-current-item(index: int) {
+        if index < 0 || index >= model.length || index == root.current-item {
+            return;
+        }
+
+        bring-into-view(index);
+
+        current-item = index;
+        focus-item = index;
+        current-item-changed(current-item);
+    }
+
+    private property <length> item-height: self.viewport-height / self.model.length;
+    private property <int> into-view-item: 0;
+    private property <length> into-view-item-y: root.item-y(root.into-view-item);
+    private property <length> current-item-y: root.item-y(root.focus-item);
+    private property <int> focus-item: 0;
+    private property <bool> has-item-been-selected: false;
+
+    accessible-delegate-focus: root.focus-item;
+    accessible-item-count: root.model.length;
+
+    pure function first-visible-item() -> int {
+        return min(root.model.length - 1, max(0, round(-root.viewport-y / root.item-height)));
+    }
+
+    pure function last-visible-item() -> int {
+        return min(root.model.length - 1, max(0, round((-root.viewport-y + root.height - root.item-height) / root.item-height)));
+    }
+
+    pure function item-y(index: int) -> length {
+        return root.viewport-y + index * root.item-height;
+    }
+
+    pure function item-at-y(y: length) -> int {
+        return min(root.model.length - 1, max(0, round(y / root.item-height)));
+    }
+
+    function bring-into-view(index: int) {
+        if (index < 0 || index >= model.length) {
+            return;
+        }
+
+        into-view-item = index;
+
+        if (into-view-item-y < 0) {
+            self.viewport-y += 0 - into-view-item-y;
+        }
+
+        if (into-view-item-y + item-height > self.visible-height) {
+            self.viewport-y -= into-view-item-y + item-height - self.visible-height;
+        }
+    }
+
+    protected function focus-up() {
+        root.set-focus-item(root.focus-item - 1);
+    }
+
+    protected function focus-page-up() {
+        if root.focus-item != root.first-visible-item() {
+            root.set-focus-item(root.first-visible-item())
+        } else {
+            root.set-focus-item(root.item-at-y(root.item-y(root.first-visible-item()) - root.height));
+        }
+    }
+
+    protected function focus-first() {
+        root.set-focus-item(0);
+    }
+
+    protected function focus-down() {
+        root.set-focus-item(root.focus-item + 1);
+    }
+
+    protected function focus-page-down() {
+        if root.focus-item != root.last-visible-item() {
+            root.set-focus-item(root.last-visible-item())
+        } else {
+            root.set-focus-item(root.item-at-y(root.item-y(root.last-visible-item()) + root.height));
+        }
+    }
+
+    protected function focus-last() {
+        root.set-focus-item(root.model.length - 1);
+    }
+
+    protected function select-focus-item() {
+        root.set-current-item(root.focus-item);
+    }
+
+    protected function focus-current-item() {
+        if root.current-item == -1 && !root.has-item-been-selected && root.model.length > 0 {
+            root.set-current-item(0);
+        }
+        root.has-item-been-selected = true;
+
+        if (root.current-item-y + root.item-height < 0
+            || root.current-item-y > root.height) {
+                root.focus-item = root.first-visible-item();
+        }
+    }
+
+    protected function toggle-focus-item-selection() {
+        if (root.current-item == root.focus-item) {
+            root.current-item = -1;
+        } else {
+            root.select-focus-item();
+        }
+    }
+
+    protected function set-focus-item(index: int) {
+        root.focus-item = min(root.model.length - 1, max(0, index));
+        root.bring-into-view(root.focus-item);
+    }
+
+    for item[index] in root.model : ListItem {
+        height: self.min-height;
+        item: item;
+        index: index;
+        is-selected: index == root.current-item;
+        has-focus: root.has-focus && index == root.focus-item;
+        has-hover: i-touch-area.has-hover;
+        pressed: i-touch-area.pressed;
+        pressed-x: i-touch-area.pressed-x;
+        pressed-y: i-touch-area.pressed-y;
+        accessible-action-default => { i-touch-area.clicked(); }
+
+        i-touch-area := TouchArea {
+            clicked => {
+                root.set-current-item(index);
+            }
+
+            pointer-event(pe) => {
+                root.item-pointer-event(index, pe, {
+                    x: self.absolute-position.x + self.mouse-x - root.absolute-position.x,
+                    y: self.absolute-position.y + self.mouse-y - root.absolute-position.y,
+                });
+            }
+        }
+    }
+}
+
+export component JukeboxListView inherits StandardListViewBase {
+    forward-focus: i-focus-scope;
+
+    i-focus-scope := FocusScope {
+        x: 0;
+        width: 0;  // Do not react on clicks
+
+        focus-changed-event => {
+            root.focus-current-item();
+            root.has-focus = self.has-focus;
+        }
+
+        key-pressed(event) => {
+            if (event.text == Key.UpArrow) {
+                root.focus-up();
+                if (!event.modifiers.control) {
+                    root.select-focus-item();
+                }
+                return accept;
+            } else if (event.text == Key.PageUp) {
+                root.focus-page-up();
+                if (!event.modifiers.control) {
+                    root.select-focus-item();
+                }
+                return accept;
+            } else if (event.text == Key.Home) {
+                root.focus-first();
+                if (!event.modifiers.control) {
+                    root.select-focus-item();
+                }
+                return accept;
+            } else if (event.text == Key.DownArrow) {
+                root.focus-down();
+                if (!event.modifiers.control) {
+                    root.select-focus-item();
+                }
+                return accept;
+            } else if (event.text == Key.PageDown) {
+                root.focus-page-down();
+                if (!event.modifiers.control) {
+                    root.select-focus-item();
+                }
+                return accept;
+            } else if (event.text == Key.End) {
+                root.focus-last();
+                if (!event.modifiers.control) {
+                    root.select-focus-item();
+                }
+                return accept;
+            } else if (event.text == Key.Space) {
+                if (event.modifiers.control) {
+                    root.toggle-focus-item-selection();
+                } else {
+                    root.select-focus-item();
+                }
+                return accept;
+            }
+            reject
+        }
+    }
+}

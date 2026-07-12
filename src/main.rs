@@ -5,10 +5,12 @@ mod wasapi;
 mod directsound;
 mod launcher_config;
 
-use quick_xml::events::{BytesDecl, Event};
+use quick_xml::{events::{BytesDecl, Event}, se::EmptyElementHandling};
+use serde::Serialize;
 use slint::{CloseRequestResponse, ModelRc, SharedString, VecModel, language::{ColorScheme, StandardListViewItem}};
-use std::{env::current_exe, fs::File, io::{BufReader, BufWriter}, path::{Path, PathBuf}, rc::Rc};
+use std::{env::current_exe, fs::File, io::{BufReader, BufWriter, Write}, path::{Path, PathBuf}, rc::Rc};
 use anyhow::{Result, bail};
+use encoding_rs::SHIFT_JIS;
 
 use crate::lr2_config::Folders;
 
@@ -44,12 +46,38 @@ fn setup_callbacks(app: &App, config: lr2_config::Config, launcher_config: launc
             let app = app_weak.unwrap();
             let app_globals = app.global::<ApplicationGlobal>();
 
-            // TODO: save LR2 config
+            save_new_lr2_config(&app_globals, &config);
             save_new_launcher_config(&app_globals, &launcher_config);
-
+            
             CloseRequestResponse::HideWindow
         }
     });
+}
+
+fn save_new_lr2_config(app_globals: &ApplicationGlobal, config: &lr2_config::Config) {
+    let mut config_new = config.clone();
+
+    // TODO: update config_new here
+
+    let lr2_path: PathBuf = app_globals.get_lr2_path().to_string().into();
+    let lr2_folder_path = lr2_path.parent().unwrap();
+    write_lr2_config(lr2_folder_path, config_new).unwrap();
+}
+
+fn write_lr2_config(lr2_folder_path: &Path, config: &lr2_config::Config) -> Result<()> {
+    let config_path = lr2_folder_path.join("LR2files\\Config\\config.xml");
+    let mut config_file = File::create(config_path)?;
+
+    let mut buffer = String::from("<?xml version=\"1.0\" encoding=\"shift_jis\"?>\n");
+    let mut ser = quick_xml::se::Serializer::with_root(&mut buffer, Some("config"))?;
+    ser.empty_element_handling(EmptyElementHandling::Expanded);
+    ser.indent('\t', 1);
+    config.serialize(ser).unwrap();
+    buffer = buffer.replace("\n", "\r\n");
+
+    let config_encoded = SHIFT_JIS.encode(&buffer);
+    config_file.write_all(&config_encoded.0)?;
+    Ok(())
 }
 
 fn save_new_launcher_config(app_globals: &ApplicationGlobal, launcher_config: &launcher_config::Config) {

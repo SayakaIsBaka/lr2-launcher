@@ -7,7 +7,7 @@ mod launcher_config;
 
 use quick_xml::{events::{BytesDecl, Event}, se::EmptyElementHandling};
 use serde::Serialize;
-use slint::{CloseRequestResponse, ModelRc, SharedString, VecModel, language::{ColorScheme, StandardListViewItem}};
+use slint::{CloseRequestResponse, Model, ModelRc, SharedString, VecModel, language::{ColorScheme, StandardListViewItem}};
 use std::{env::current_exe, fs::File, io::{BufReader, BufWriter, Write}, path::{Path, PathBuf}, rc::Rc};
 use anyhow::{Result, bail};
 use encoding_rs::SHIFT_JIS;
@@ -57,11 +57,53 @@ fn setup_callbacks(app: &App, config: lr2_config::Config, launcher_config: launc
 fn save_new_lr2_config(app_globals: &ApplicationGlobal, config: &lr2_config::Config) {
     let mut config_new = config.clone();
 
-    // TODO: update config_new here
+    // Home
+    config_new.system.windowsize_x = app_globals.get_window_x();
+    config_new.system.windowsize_y = app_globals.get_window_y();
+    config_new.system.screenmode = u8::try_from(app_globals.get_screenmode()).unwrap();
+    config_new.system.autoreload = u8::try_from(app_globals.get_autoreload()).unwrap();
+    config_new.select.preview = app_globals.get_preview();
+
+    // Jukebox
+    let mut new_paths: Vec<String> = vec![];
+    for path in app_globals.get_jukebox_paths().iter() {
+        new_paths.push(path.text.into());
+    }
+    config_new.jukebox.path = new_paths;
+
+    // Play
+    config_new.play.hsmin = app_globals.get_hsmin();
+    config_new.play.hsmax = app_globals.get_hsmax();
+    config_new.play.hsmargin = app_globals.get_hsmargin();
+    config_new.play.shuttermargin = app_globals.get_shuttermargin();
+    config_new.play.basespeed = app_globals.get_basespeed();
+    config_new.select.folderlamp = app_globals.get_folderlamp();
+
+    let mut folders = Folders::empty();
+    folders.set(Folders::Random, app_globals.get_folder_random());
+    folders.set(Folders::Favorite, app_globals.get_folder_favorite());
+    folders.set(Folders::Ignore, app_globals.get_folder_ignored());
+    folders.set(Folders::Top10, app_globals.get_folder_top10());
+    folders.set(Folders::Level, app_globals.get_folder_level());
+    folders.set(Folders::Clear, app_globals.get_folder_cleartype());
+    folders.set(Folders::Playrank, app_globals.get_folder_playrank());
+    folders.set(Folders::InsaneBms, app_globals.get_folder_insanebms());
+    config_new.system.customfolder = folders;
+
+    config_new.select.searchmax = app_globals.get_searchmax();
+    config_new.play.poorbga = app_globals.get_poorbga();
+    config_new.system.inputinterval = app_globals.get_inputinterval();
+
+    // System
+    config_new.system.vsync = app_globals.get_vsync();
+    config_new.sound.output = app_globals.get_audiooutput();
+    config_new.sound.driver = app_globals.get_selecteddriver();
+    config_new.sound.bufferlength = app_globals.get_bufferlength();
+    config_new.sound.disablefmod = app_globals.get_disablefmod();
 
     let lr2_path: PathBuf = app_globals.get_lr2_path().to_string().into();
     let lr2_folder_path = lr2_path.parent().unwrap();
-    write_lr2_config(lr2_folder_path, config_new).unwrap();
+    write_lr2_config(lr2_folder_path, &config_new).unwrap();
 }
 
 fn write_lr2_config(lr2_folder_path: &Path, config: &lr2_config::Config) -> Result<()> {
@@ -77,6 +119,7 @@ fn write_lr2_config(lr2_folder_path: &Path, config: &lr2_config::Config) -> Resu
 
     let config_encoded = SHIFT_JIS.encode(&buffer);
     config_file.write_all(&config_encoded.0)?;
+
     Ok(())
 }
 

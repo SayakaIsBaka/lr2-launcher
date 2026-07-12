@@ -42,7 +42,7 @@ bitflags! {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Config {
     #[serde(rename = "$text")]
     pub text: Option<String>,
@@ -59,7 +59,7 @@ pub struct Config {
 }
 
 #[serde_as]
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct System {
     #[serde(rename = "$text")]
     pub text: Option<String>,
@@ -90,14 +90,14 @@ pub struct System {
     pub softwarerendering: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Jukebox {
     #[serde(rename = "$text")]
     pub text: Option<String>,
     pub path: Vec<String>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Play {
     #[serde(rename = "$text")]
     pub text: Option<String>,
@@ -131,7 +131,7 @@ pub struct Play {
 }
 
 #[serde_as]
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Sound {
     #[serde(rename = "$text")]
     pub text: Option<String>,
@@ -173,7 +173,7 @@ pub struct Sound {
     pub fxp2_2: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Player {
     #[serde(rename = "$text")]
     pub text: Option<String>,
@@ -184,20 +184,20 @@ pub struct Player {
     pub irpass: Irpass,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Name {
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Irid {
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Irpass {
 }
 
 #[serde_as]
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct ConfigSelect {
     #[serde(rename = "$text")]
     pub text: Option<String>,
@@ -227,7 +227,7 @@ pub struct ConfigSelect {
     pub disablesubtitle: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Skin {
     #[serde(rename = "$text")]
     pub text: Option<String>,
@@ -250,15 +250,15 @@ pub struct Skin {
     pub disableimagefont: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Theme {
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Play9B {
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Network {
     #[serde(rename = "$text")]
     pub text: Option<String>,
@@ -271,11 +271,11 @@ pub struct Network {
     pub getrival: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Mail {
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Course {
     #[serde(rename = "$text")]
     pub text: Option<String>,
@@ -294,7 +294,7 @@ pub struct Course {
     pub stage: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Tools {
     #[serde(rename = "$text")]
     pub text: Option<String>,
@@ -315,11 +315,10 @@ pub struct Tools {
     pub autofumensearch: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct BmseOption {
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct OggdecOption {
 }
-

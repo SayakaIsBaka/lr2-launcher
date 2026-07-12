@@ -19,6 +19,7 @@ export component App inherits Window {
     //icon: @image-url("../../logo/slint-logo-small-light.png");
 
     callback audio_type_change();
+    callback set_lr2_path();
 
     HorizontalLayout {
         side-bar := SideBar {
@@ -41,10 +42,10 @@ export component App inherits Window {
             accessible-role: main;
             accessible-label: @tr("Content");
 
-            if(side-bar.current-item == 0): HomePage { }
+            if(side-bar.current-item == 0): HomePage {set_lr2_path => {root.set_lr2_path();} }
             if(side-bar.current-item == 1): JukeboxPage { }
             if(side-bar.current-item == 2): PlayOptionsPage { }
-            if(side-bar.current-item == 3): SystemOptionsPage { audio_type_change => {root.audio_type_change()} }
+            if(side-bar.current-item == 3): SystemOptionsPage { audio_type_change => {root.audio_type_change();} }
         }
     }
 

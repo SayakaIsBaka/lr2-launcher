@@ -32,6 +32,7 @@ pub fn main() {
 fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_config: Arc<Mutex<launcher_config::Config>>) {
     app.on_audio_type_change({
         let app_weak = app.as_weak();
+
         move || {
             let app = app_weak.unwrap();
             let app_globals = app.global::<ApplicationGlobal>();
@@ -43,23 +44,49 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
 
     // TODO: make buttons do things (including language)
 
-    app.window().on_close_requested({
+    app.on_set_lr2_path({
         let app_weak = app.as_weak();
+        let config_clone = config.clone();
+
         move || {
             let app = app_weak.unwrap();
             let app_globals = app.global::<ApplicationGlobal>();
 
-            save_new_lr2_config(&app_globals, &config);
-            save_new_launcher_config(&app_globals, &launcher_config);
+            let new_lr2_path = match rfd::FileDialog::new()
+                .add_filter("LR2 executable", &["exe"])
+                .set_title("Pick LR2 executable...")
+                .pick_file() {
+                    Some(path) => path,
+                    None => return
+                };
+            
+            app_globals.set_lr2_path(new_lr2_path.clone().into_os_string().into_string().unwrap().into());
+            let config_new = load_lr2_config(&app_globals, &new_lr2_path).unwrap();
+
+            let mut config_ref = config_clone.lock().unwrap();
+            *config_ref = config_new;
+        }
+    });
+
+    app.window().on_close_requested({
+        let app_weak = app.as_weak();
+        let config_clone = config.clone();
+        let launcher_config_clone = launcher_config.clone();
+
+        move || {
+            let app = app_weak.unwrap();
+            let app_globals = app.global::<ApplicationGlobal>();
+
+            save_new_lr2_config(&app_globals, &config_clone);
+            save_new_launcher_config(&app_globals, &launcher_config_clone);
             
             CloseRequestResponse::HideWindow
         }
     });
 }
 
-fn save_new_lr2_config(app_globals: &ApplicationGlobal, config: &Arc<Mutex<lr2_config::Config>>) {
-    let config_clone = config.clone();
-    let mut config_new = config_clone.lock().unwrap();
+fn save_new_lr2_config(app_globals: &ApplicationGlobal, config: &Mutex<lr2_config::Config>) {
+    let mut config_new = config.lock().unwrap();
 
     // Home
     config_new.system.windowsize_x = app_globals.get_window_x();
@@ -127,9 +154,8 @@ fn write_lr2_config(lr2_folder_path: &Path, config: &lr2_config::Config) -> Resu
     Ok(())
 }
 
-fn save_new_launcher_config(app_globals: &ApplicationGlobal, launcher_config: &Arc<Mutex<launcher_config::Config>>) {
-    let launcher_config_clone = launcher_config.clone();
-    let mut launcher_config_new = launcher_config_clone.lock().unwrap();
+fn save_new_launcher_config(app_globals: &ApplicationGlobal, launcher_config: &Mutex<launcher_config::Config>) {
+    let mut launcher_config_new = launcher_config.lock().unwrap();
 
     launcher_config_new.dark_mode = app_globals.get_darkmode();
     launcher_config_new.disable_score = app_globals.get_disable_score_save();

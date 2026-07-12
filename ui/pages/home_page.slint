@@ -16,6 +16,8 @@ export component HomePage inherits Page {
     title: @tr("Home");
     alignment: start;
 
+    callback set_lr2_path();
+
     GroupBox {
         title: @tr("Player");
         HorizontalBox {
@@ -77,6 +79,7 @@ export component HomePage inherits Page {
             }
             Button {
                 text: @tr("Set LR2 Path");
+                clicked => { root.set_lr2_path() }
             }
         }
     }

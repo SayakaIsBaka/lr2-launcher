@@ -36,6 +36,8 @@ fn setup_callbacks(app: &App, config: lr2_config::Config, launcher_config: launc
         }
     });
 
+    // TODO: make buttons do things (including language)
+
     app.window().on_close_requested({
         let app_weak = app.as_weak();
         move || {
@@ -56,7 +58,7 @@ fn save_new_launcher_config(app_globals: &ApplicationGlobal, launcher_config: &l
     launcher_config_new.dark_mode = app_globals.get_darkmode();
     launcher_config_new.disable_score = app_globals.get_disable_score_save();
     launcher_config_new.lr2_path = app_globals.get_lr2_path().to_string().into();
-    // TODO: language
+    launcher_config_new.language = app_globals.get_language().try_into().unwrap();
 
     let launcher_path = current_exe().unwrap();
     let launcher_dir = launcher_path.parent().unwrap();
@@ -244,5 +246,6 @@ fn set_initial_values(app_globals: &ApplicationGlobal, launcher_config: &launche
 
     // Launcher settings
     app_globals.set_darkmode(launcher_config.dark_mode);
-    // TODO: language
+    app_globals.set_language(launcher_config.language.clone() as i32);
+    //TODO: actually set the application language to the selected one here
 }

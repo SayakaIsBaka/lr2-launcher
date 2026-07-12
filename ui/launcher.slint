@@ -5,7 +5,7 @@ import {
     JukeboxPage,
 } from "pages/pages.slint";
 import { SideBar } from "side_bar.slint";
-import { Button, ComboBox, Palette } from "std-widgets.slint";
+import { Button, ComboBox, Palette, VerticalBox, HorizontalBox } from "std-widgets.slint";
 import { ApplicationGlobal } from "globals.slint";
 
 export { Palette, ColorScheme }
@@ -45,6 +45,18 @@ export component App inherits Window {
             if(side-bar.current-item == 1): JukeboxPage { }
             if(side-bar.current-item == 2): PlayOptionsPage { }
             if(side-bar.current-item == 3): SystemOptionsPage { audio_type_change => {root.audio_type_change()} }
+        }
+    }
+
+    VerticalBox {
+        y: parent.height - 4.5rem;
+        x: 0;
+        width: side-bar.width;
+        alignment: start;
+
+        ComboBox {
+            model: ["English", "日本語", "한국인"];
+            current-index <=> ApplicationGlobal.language;
         }
     }
 }

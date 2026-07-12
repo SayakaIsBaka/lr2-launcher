@@ -8,7 +8,7 @@ mod launcher_config;
 use quick_xml::{events::{BytesDecl, Event}, se::EmptyElementHandling};
 use serde::Serialize;
 use slint::{CloseRequestResponse, Model, ModelRc, SharedString, VecModel, language::{ColorScheme, StandardListViewItem}};
-use std::{env::current_exe, fs::File, io::{BufReader, BufWriter, Write}, path::{Path, PathBuf}, rc::Rc};
+use std::{env::current_exe, fs::File, io::{BufReader, BufWriter, Write}, path::{Path, PathBuf}, rc::Rc, sync::{Arc, Mutex}};
 use anyhow::{Result, bail};
 use encoding_rs::SHIFT_JIS;
 
@@ -21,12 +21,15 @@ pub fn main() {
 
     let app = App::new().unwrap();
     let (config, launcher_config) = init_launcher(&app);
-    setup_callbacks(&app, config, launcher_config);
+    let config_arc = Arc::new(Mutex::new(config));
+    let launcher_config_arc = Arc::new(Mutex::new(launcher_config));
+
+    setup_callbacks(&app, config_arc, launcher_config_arc);
 
     app.run().unwrap();
 }
 
-fn setup_callbacks(app: &App, config: lr2_config::Config, launcher_config: launcher_config::Config) {
+fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_config: Arc<Mutex<launcher_config::Config>>) {
     app.on_audio_type_change({
         let app_weak = app.as_weak();
         move || {
@@ -54,8 +57,9 @@ fn setup_callbacks(app: &App, config: lr2_config::Config, launcher_config: launc
     });
 }
 
-fn save_new_lr2_config(app_globals: &ApplicationGlobal, config: &lr2_config::Config) {
-    let mut config_new = config.clone();
+fn save_new_lr2_config(app_globals: &ApplicationGlobal, config: &Arc<Mutex<lr2_config::Config>>) {
+    let config_clone = config.clone();
+    let mut config_new = config_clone.lock().unwrap();
 
     // Home
     config_new.system.windowsize_x = app_globals.get_window_x();
@@ -123,8 +127,9 @@ fn write_lr2_config(lr2_folder_path: &Path, config: &lr2_config::Config) -> Resu
     Ok(())
 }
 
-fn save_new_launcher_config(app_globals: &ApplicationGlobal, launcher_config: &launcher_config::Config) {
-    let mut launcher_config_new = launcher_config.clone();
+fn save_new_launcher_config(app_globals: &ApplicationGlobal, launcher_config: &Arc<Mutex<launcher_config::Config>>) {
+    let launcher_config_clone = launcher_config.clone();
+    let mut launcher_config_new = launcher_config_clone.lock().unwrap();
 
     launcher_config_new.dark_mode = app_globals.get_darkmode();
     launcher_config_new.disable_score = app_globals.get_disable_score_save();
@@ -166,6 +171,14 @@ fn generate_default_config(launcher_dir: &Path) -> Result<launcher_config::Confi
     Ok(default_config)
 }
 
+fn set_launcher_initial_values(app_globals: &ApplicationGlobal, launcher_config: &launcher_config::Config) {
+    app_globals.set_lr2_path(launcher_config.lr2_path.clone().into_os_string().into_string().unwrap().into());
+    app_globals.set_disable_score_save(launcher_config.disable_score);
+    app_globals.set_darkmode(launcher_config.dark_mode);
+    app_globals.set_language(launcher_config.language.clone() as i32);
+    //TODO: actually set the application language to the selected one here
+}
+
 fn init_launcher(app: &App) -> (lr2_config::Config, launcher_config::Config) {
     let app_globals = app.global::<ApplicationGlobal>();
     let launcher_path = current_exe().unwrap();
@@ -189,17 +202,9 @@ fn init_launcher(app: &App) -> (lr2_config::Config, launcher_config::Config) {
                 None => panic!("No LR2 executable path given, exiting")
             };
     }
-    
-    let mut lr2_folder_path = launcher_config.lr2_path.clone();
-    lr2_folder_path.pop();
-    let players = parse_players(&lr2_folder_path).unwrap_or_else(|_| {panic!("Error reading scores, folder structure is probably wrong") });
 
-    let users = Rc::new(VecModel::from(players));
-    app_globals.set_players(ModelRc::from(users));
-    app_globals.set_lr2_path(launcher_config.lr2_path.clone().into_os_string().into_string().unwrap().into());
-
-    let config = parse_lr2_config(&lr2_folder_path).unwrap_or_else(|e| {panic!("{}", e) });
-    set_initial_values(&app_globals, &launcher_config, &config);
+    set_launcher_initial_values(&app_globals, &launcher_config);
+    let config = load_lr2_config(&app_globals, &launcher_config.lr2_path).unwrap();
 
     // Init color scheme from Rust (otherwise it is not applied on startup)
     app.global::<Palette>().set_color_scheme(if launcher_config.dark_mode { ColorScheme::Dark } else { ColorScheme::Light });
@@ -274,17 +279,23 @@ fn reload_devices(app_globals: &ApplicationGlobal, device_type: i32) {
     app_globals.set_drivers(get_audio_devices(device_type).unwrap_or_default());
 }
 
-fn set_initial_values(app_globals: &ApplicationGlobal, launcher_config: &launcher_config::Config, config: &lr2_config::Config) {
+fn load_lr2_config(app_globals: &ApplicationGlobal, lr2_path: &PathBuf) -> Result<lr2_config::Config> {
+    let mut lr2_folder_path = lr2_path.clone();
+    lr2_folder_path.pop();
+
+    let players = parse_players(&lr2_folder_path).unwrap_or_else(|_| {panic!("Error reading scores, folder structure is probably wrong") });
+    let config = parse_lr2_config(&lr2_folder_path).unwrap_or_else(|e| {panic!("{}", e) });
+
     // Home
+    app_globals.set_players(ModelRc::from(Rc::new(VecModel::from(players))));
     app_globals.set_window_x(config.system.windowsize_x);
     app_globals.set_window_y(config.system.windowsize_y);
     app_globals.set_screenmode(config.system.screenmode.into());
     app_globals.set_autoreload(config.system.autoreload.into());
     app_globals.set_preview(config.select.preview);
-    app_globals.set_disable_score_save(launcher_config.disable_score);
 
     // Jukebox
-    app_globals.set_jukebox_paths(jukebox_paths_to_slint_arr(config).unwrap());
+    app_globals.set_jukebox_paths(jukebox_paths_to_slint_arr(&config).unwrap());
 
     // Play
     app_globals.set_hsmin(config.play.hsmin);
@@ -315,8 +326,5 @@ fn set_initial_values(app_globals: &ApplicationGlobal, launcher_config: &launche
     app_globals.set_bufferlength(config.sound.bufferlength);
     app_globals.set_disablefmod(config.sound.disablefmod);
 
-    // Launcher settings
-    app_globals.set_darkmode(launcher_config.dark_mode);
-    app_globals.set_language(launcher_config.language.clone() as i32);
-    //TODO: actually set the application language to the selected one here
+    Ok(config)
 }

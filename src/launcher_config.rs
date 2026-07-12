@@ -22,7 +22,7 @@ impl TryFrom<i32> for Language {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize)]
 pub struct Config {
     pub lr2_path: PathBuf,
     pub dark_mode: bool,

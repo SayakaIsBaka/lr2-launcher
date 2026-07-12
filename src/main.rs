@@ -42,7 +42,41 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
         }
     });
 
-    // TODO: make buttons do things (including language)
+    // TODO: make more buttons do things (including language)
+
+    app.on_jukebox_add({
+        let app_weak = app.as_weak();
+
+        move || {
+            let app = app_weak.unwrap();
+            let app_globals = app.global::<ApplicationGlobal>();
+
+            let folder_to_add = match rfd::FileDialog::new()
+                .set_title("Add jukebox folder...")
+                .pick_folder() {
+                    Some(path) => path,
+                    None => return
+                };
+            let mut paths = slint_arr_to_jukebox_paths(&app_globals);
+            paths.push(folder_to_add.as_os_str().to_os_string().into_string().unwrap() + "\\"); // Doesn't actually matter but for consistency with the original launcher
+            let paths_slint = jukebox_paths_to_slint_arr(&paths).unwrap();
+            app_globals.set_jukebox_paths(paths_slint);
+        }
+    });
+
+    app.on_jukebox_del({
+        let app_weak = app.as_weak();
+
+        move |selected_path| {
+            let app = app_weak.unwrap();
+            let app_globals = app.global::<ApplicationGlobal>();
+
+            let mut paths = slint_arr_to_jukebox_paths(&app_globals);
+            paths.remove(usize::try_from(selected_path).unwrap());
+            let paths_slint = jukebox_paths_to_slint_arr(&paths).unwrap();
+            app_globals.set_jukebox_paths(paths_slint);
+        }
+    });
 
     app.on_set_lr2_path({
         let app_weak = app.as_weak();
@@ -85,6 +119,14 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
     });
 }
 
+fn slint_arr_to_jukebox_paths(app_globals: &ApplicationGlobal) -> Vec<String> {
+    let mut new_paths: Vec<String> = vec![];
+    for path in app_globals.get_jukebox_paths().iter() {
+        new_paths.push(path.text.into());
+    }
+    new_paths
+}
+
 fn save_new_lr2_config(app_globals: &ApplicationGlobal, config: &Mutex<lr2_config::Config>) {
     let mut config_new = config.lock().unwrap();
 
@@ -96,11 +138,7 @@ fn save_new_lr2_config(app_globals: &ApplicationGlobal, config: &Mutex<lr2_confi
     config_new.select.preview = app_globals.get_preview();
 
     // Jukebox
-    let mut new_paths: Vec<String> = vec![];
-    for path in app_globals.get_jukebox_paths().iter() {
-        new_paths.push(path.text.into());
-    }
-    config_new.jukebox.path = new_paths;
+    config_new.jukebox.path = slint_arr_to_jukebox_paths(app_globals);
 
     // Play
     config_new.play.hsmin = app_globals.get_hsmin();
@@ -269,9 +307,9 @@ fn parse_lr2_config(lr2_folder_path: &PathBuf) -> Result<lr2_config::Config> {
     Ok(config)
 }
 
-fn jukebox_paths_to_slint_arr(config: &lr2_config::Config) -> Result<ModelRc<StandardListViewItem>> {
+fn jukebox_paths_to_slint_arr(paths: &Vec<String>) -> Result<ModelRc<StandardListViewItem>> {
     let mut standard_list_view_vec: Vec<StandardListViewItem> = vec![];
-    for path in &config.jukebox.path {
+    for path in paths {
         standard_list_view_vec.push(StandardListViewItem::from(path.as_str()));
     }
     Ok(VecModel::from_slice(standard_list_view_vec.as_slice()))
@@ -321,7 +359,7 @@ fn load_lr2_config(app_globals: &ApplicationGlobal, lr2_path: &PathBuf) -> Resul
     app_globals.set_preview(config.select.preview);
 
     // Jukebox
-    app_globals.set_jukebox_paths(jukebox_paths_to_slint_arr(&config).unwrap());
+    app_globals.set_jukebox_paths(jukebox_paths_to_slint_arr(&config.jukebox.path).unwrap());
 
     // Play
     app_globals.set_hsmin(config.play.hsmin);

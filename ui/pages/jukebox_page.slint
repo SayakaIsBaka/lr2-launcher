@@ -12,6 +12,9 @@ import { ApplicationGlobal } from "../globals.slint";
 
 export component JukeboxPage inherits Page {
     title: @tr("Jukebox");
+    
+    callback jukebox_add();
+    callback jukebox_del(selected-item: int);
 
     GroupBox {
         VerticalBox {
@@ -24,15 +27,18 @@ export component JukeboxPage inherits Page {
                 alignment: end;
                 Button {
                     text: "Add";
+                    clicked => {root.jukebox_add()};
                 }
                 Button {
                     text: "Delete";
+                    clicked => {root.jukebox_del(jukebox.current-item)};
+                    enabled: jukebox.current-item != -1;
                 }
             }
         }
             DropArea {
                 // TODO: folder drag and drop (when it's implemented in Slint)
-                JukeboxListView {
+                jukebox := JukeboxListView {
                     model: ApplicationGlobal.jukebox_paths;
                 }
             }

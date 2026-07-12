@@ -42,7 +42,7 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
         }
     });
 
-    // TODO: make more buttons do things (including language)
+    // TODO: start game button, player add / delete and language change callback
 
     app.on_jukebox_add({
         let app_weak = app.as_weak();

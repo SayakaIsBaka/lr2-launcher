@@ -94,7 +94,7 @@ pub struct System {
 pub struct Jukebox {
     #[serde(rename = "$text")]
     pub text: Option<String>,
-    pub path: Vec<String>,
+    pub path: Option<Vec<String>>,
 }
 
 #[derive(Serialize, Deserialize)]

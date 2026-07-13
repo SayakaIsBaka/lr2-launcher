@@ -59,7 +59,7 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
                 };
             let mut paths = slint_arr_to_jukebox_paths(&app_globals);
             paths.push(folder_to_add.as_os_str().to_os_string().into_string().unwrap() + "\\"); // Doesn't actually matter but for consistency with the original launcher
-            let paths_slint = jukebox_paths_to_slint_arr(&paths).unwrap();
+            let paths_slint = jukebox_paths_to_slint_arr(&Some(paths)).unwrap();
             app_globals.set_jukebox_paths(paths_slint);
         }
     });
@@ -73,7 +73,7 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
 
             let mut paths = slint_arr_to_jukebox_paths(&app_globals);
             paths.remove(usize::try_from(selected_path).unwrap());
-            let paths_slint = jukebox_paths_to_slint_arr(&paths).unwrap();
+            let paths_slint = jukebox_paths_to_slint_arr(&Some(paths)).unwrap();
             app_globals.set_jukebox_paths(paths_slint);
         }
     });
@@ -138,7 +138,7 @@ fn save_new_lr2_config(app_globals: &ApplicationGlobal, config: &Mutex<lr2_confi
     config_new.select.preview = app_globals.get_preview();
 
     // Jukebox
-    config_new.jukebox.path = slint_arr_to_jukebox_paths(app_globals);
+    config_new.jukebox.path = Some(slint_arr_to_jukebox_paths(app_globals));
 
     // Play
     config_new.play.hsmin = app_globals.get_hsmin();
@@ -307,10 +307,12 @@ fn parse_lr2_config(lr2_folder_path: &PathBuf) -> Result<lr2_config::Config> {
     Ok(config)
 }
 
-fn jukebox_paths_to_slint_arr(paths: &Vec<String>) -> Result<ModelRc<StandardListViewItem>> {
+fn jukebox_paths_to_slint_arr(paths: &Option<Vec<String>>) -> Result<ModelRc<StandardListViewItem>> {
     let mut standard_list_view_vec: Vec<StandardListViewItem> = vec![];
-    for path in paths {
-        standard_list_view_vec.push(StandardListViewItem::from(path.as_str()));
+    if paths.is_some() {
+        for path in paths.as_ref().unwrap() {
+            standard_list_view_vec.push(StandardListViewItem::from(path.as_str()));
+        }
     }
     Ok(VecModel::from_slice(standard_list_view_vec.as_slice()))
 }

@@ -26,6 +26,7 @@ export component App inherits Window {
     callback show_new_player_window();
     callback player_change(current-player: string);
     callback delete_player(player: string);
+    callback launch_game();
 
     HorizontalLayout {
         side-bar := SideBar {
@@ -41,6 +42,7 @@ export component App inherits Window {
             Button {
                 text: @tr("Start game");
                 primary: true;
+                clicked => {root.launch_game()};
             }
         }
 

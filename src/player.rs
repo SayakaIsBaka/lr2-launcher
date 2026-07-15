@@ -103,3 +103,22 @@ pub fn delete_player(username: String, lr2_folder_path: &Path) {
 
     let _ = fs::remove_file(player_db);
 }
+
+pub fn are_credentials_valid(username: &String, password: &String, lr2_folder_path: &Path) -> Result<bool> {
+    let mut player_db = lr2_folder_path.join("LR2files\\Database\\Score\\").join(&username);
+    player_db.add_extension("db");
+    if !player_db.exists() {
+        bail!("Player does not exist");
+    }
+    let conn = Connection::open(player_db.as_os_str().to_str().unwrap())?;
+    let mut stmt = conn.prepare("SELECT hash FROM player")?;
+    let res = stmt.query_one([], |row| {
+        let ref_hash: String = row.get(0)?;
+        let digest = md5::compute(password);
+        let password_hash = format!("{:x}", digest);
+
+        Ok(ref_hash == password_hash)
+    })?;
+
+    Ok(res)
+}

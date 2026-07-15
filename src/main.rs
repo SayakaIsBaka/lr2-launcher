@@ -5,6 +5,7 @@ mod wasapi;
 mod directsound;
 mod launcher_config;
 mod player;
+mod process;
 
 use quick_xml::{events::{BytesDecl, Event}, se::EmptyElementHandling};
 use serde::Serialize;
@@ -43,7 +44,41 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
         }
     });
 
-    // TODO: start game button and language change callback
+    // TODO: language change callback
+    app.on_launch_game({
+        let app_weak = app.as_weak();
+        let config_clone = config.clone();
+        let launcher_config_clone = launcher_config.clone();
+
+        move || {
+            let app = app_weak.unwrap();
+            let app_globals = app.global::<ApplicationGlobal>();
+
+            let username = match app_globals.get_players().row_data(usize::try_from(app_globals.get_selected_player()).unwrap()) {
+                Some(player) => { player.to_string() },
+                None => { panic!("Player doesn't exist anymore") }
+            };
+            let password = app_globals.get_password().to_string();
+            let lr2_path: PathBuf = app_globals.get_lr2_path().to_string().clone().into();
+            let lr2_folder_path = lr2_path.parent().unwrap();
+
+            let valid = player::are_credentials_valid(&username, &password, lr2_folder_path).unwrap_or(false);
+            if !valid {
+                rfd::MessageDialog::new()
+                    .set_buttons(rfd::MessageButtons::Ok)
+                    .set_level(rfd::MessageLevel::Error)
+                    .set_title(app_globals.get_window_title())
+                    .set_description("Invalid password, ensure you typed it correctly!")
+                    .show();
+            } else {
+                save_new_lr2_config(&app_globals, &config_clone);
+                save_new_launcher_config(&app_globals, &launcher_config_clone);
+                process::launch_game(&lr2_path, app_globals.get_disable_score_save());
+
+                app.hide().unwrap();
+            }
+        }
+    });
 
     app.on_player_change({
         let app_weak = app.as_weak();
@@ -460,6 +495,7 @@ fn load_lr2_config(app_globals: &ApplicationGlobal, lr2_path: &PathBuf) -> Resul
     let mut lr2_folder_path = lr2_path.clone();
     lr2_folder_path.pop();
 
+    // TODO: handle case where config does not exist (aka very first launch)
     let players = parse_players(&lr2_folder_path).unwrap_or_else(|_| {panic!("Error reading scores, folder structure is probably wrong") });
     let config = parse_lr2_config(&lr2_folder_path).unwrap_or_else(|e| {panic!("{}", e) });
 

@@ -4,6 +4,7 @@ mod lr2_config;
 mod wasapi;
 mod directsound;
 mod launcher_config;
+mod player;
 
 use quick_xml::{events::{BytesDecl, Event}, se::EmptyElementHandling};
 use serde::Serialize;
@@ -42,7 +43,47 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
         }
     });
 
-    // TODO: start game button, player add / delete and language change callback
+    // TODO: start game button, player delete and language change callback
+
+    app.on_show_new_player_window({
+        let app_weak = app.as_weak();
+
+        move || {
+            // Show second window with username / password input
+            let new_user_window = NewUser::new().unwrap();
+
+            new_user_window.on_user_create_ok({
+                let new_user_window_weak = new_user_window.as_weak();
+                let app_weak = app_weak.unwrap().as_weak();
+
+                move |username: SharedString, password: SharedString| {
+                    let app = app_weak.unwrap();
+                    let app_globals = app.global::<ApplicationGlobal>();
+                    let lr2_path: PathBuf = app_globals.get_lr2_path().to_string().clone().into();
+                    let lr2_folder_path = lr2_path.parent().unwrap();
+
+                    let new_user_window = new_user_window_weak.unwrap();
+                    match player::create_new_player(username.into(), password.into(), lr2_folder_path) {
+                        Ok(()) => {
+                            let players = parse_players(&lr2_folder_path.to_path_buf()).unwrap();
+                            app_globals.set_players(ModelRc::from(Rc::new(VecModel::from(players))));
+                            new_user_window.hide().unwrap()
+                        }
+                        Err(e) => { new_user_window.set_error_text(e.to_string().into()) }
+                    };
+                }
+            });
+            new_user_window.on_user_create_cancel({
+                let new_user_window_weak = new_user_window.as_weak();
+
+                move || {
+                    new_user_window_weak.unwrap().hide().unwrap();
+                }
+            });
+
+            new_user_window.show().unwrap();
+        }
+    });
 
     app.on_jukebox_add({
         let app_weak = app.as_weak();

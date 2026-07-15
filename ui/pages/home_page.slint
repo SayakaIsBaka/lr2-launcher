@@ -17,6 +17,7 @@ export component HomePage inherits Page {
     alignment: start;
 
     callback set_lr2_path();
+    callback show_new_player_window();
 
     GroupBox {
         title: @tr("Player");
@@ -26,6 +27,7 @@ export component HomePage inherits Page {
             }
             Button {
                 text: @tr("+");
+                clicked => { root.show_new_player_window() }
                 Tooltip {
                     text: @markdown("\{@tr("Add player")}");
                 }

@@ -10,6 +10,7 @@ import { ApplicationGlobal } from "globals.slint";
 
 export { Palette, ColorScheme }
 export { ApplicationGlobal }
+export { NewUser } from "new_user.slint";
 
 export component App inherits Window {
     preferred-width: 800px;
@@ -22,6 +23,7 @@ export component App inherits Window {
     callback set_lr2_path();
     callback jukebox_add();
     callback jukebox_del(selected-item: int);
+    callback show_new_player_window();
 
     HorizontalLayout {
         side-bar := SideBar {
@@ -44,7 +46,10 @@ export component App inherits Window {
             accessible-role: main;
             accessible-label: @tr("Content");
 
-            if(side-bar.current-item == 0): HomePage { set_lr2_path => {root.set_lr2_path();} }
+            if(side-bar.current-item == 0): HomePage {
+                set_lr2_path => {root.set_lr2_path()};
+                show_new_player_window => {root.show_new_player_window()};
+            }
             if(side-bar.current-item == 1): JukeboxPage { 
                 jukebox_add => {root.jukebox_add()};
                 jukebox_del(selected-item) => {root.jukebox_del(selected-item)};

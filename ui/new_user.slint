@@ -1,0 +1,39 @@
+import { StandardButton, Button, LineEdit, VerticalBox } from "std-widgets.slint";
+
+export component NewUser inherits Dialog {
+    default-font-family: "Segoe UI";
+    title: @tr("Add user");
+
+    callback user_create_ok(username: string, password: string);
+    callback user_create_cancel();
+
+    in property <string> error_text;
+
+    VerticalBox {
+        Text {
+            text: @tr("Enter the username to use and a password.");
+        }
+
+        username := LineEdit {
+            placeholder-text: @tr("Username");
+        }
+        pw := LineEdit {
+            placeholder-text: @tr("Password");
+            input-type: password;
+        }
+        StyledText {
+            default-color: red;
+            text: @markdown("\{error_text}");
+        }
+    }
+
+    StandardButton {
+        kind: ok;
+        clicked => {root.user_create_ok(username.text, pw.text)};
+        enabled: !username.text.is-empty && !pw.text.is-empty;
+    }
+    StandardButton {
+        kind: cancel;
+        clicked => {root.user_create_cancel()};
+    }
+}

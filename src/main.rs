@@ -43,7 +43,7 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
         }
     });
 
-    // TODO: start game button, player delete and language change callback
+    // TODO: start game button and language change callback
 
     app.on_player_change({
         let app_weak = app.as_weak();
@@ -59,6 +59,42 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
             } else {
                 app_globals.set_password("".into());
             }
+        }
+    });
+
+    app.on_delete_player({
+        let app_weak = app.as_weak();
+        let config_clone = config.clone();
+
+        move |player| {
+            let app = app_weak.unwrap();
+            let app_globals = app.global::<ApplicationGlobal>();
+            let config = config_clone.lock().unwrap();
+
+            match rfd::MessageDialog::new()
+                .set_buttons(rfd::MessageButtons::YesNo)
+                .set_level(rfd::MessageLevel::Warning)
+                .set_title(app_globals.get_window_title())
+                .set_description(format!("Confirm deleting player {}? This operation cannot be undone and will delete all associated scores!", player))
+                .show() {
+                    rfd::MessageDialogResult::Yes => {
+                        let lr2_path: PathBuf = app_globals.get_lr2_path().to_string().clone().into();
+                        let lr2_folder_path = lr2_path.parent().unwrap();
+                        player::delete_player(player.to_string(), &lr2_folder_path);
+
+                        let players = parse_players(&lr2_folder_path.to_path_buf()).unwrap();
+                        app_globals.set_players(ModelRc::from(Rc::new(VecModel::from(players.clone()))));
+                        app_globals.set_selected_player(0);
+                        app_globals.set_password("".into());
+                        if !players.is_empty() {
+                            let player_name = players[0].to_string();
+                            if player_name.to_string() == config.player.id {
+                                app_globals.set_password(config.player.pass.clone().into());
+                            }
+                        }
+                    }
+                    _ => {}
+                };
         }
     });
 

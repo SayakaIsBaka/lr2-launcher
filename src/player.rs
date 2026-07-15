@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{fs, path::Path};
 use anyhow::{Result, bail};
 use rusqlite::Connection;
 
@@ -92,4 +92,14 @@ pub fn create_new_player(username: String, password: String, lr2_folder_path: &P
     )?;
 
     Ok(())
+}
+
+pub fn delete_player(username: String, lr2_folder_path: &Path) {
+    let mut player_db = lr2_folder_path.join("LR2files\\Database\\Score\\").join(&username);
+    player_db.add_extension("db");
+    if !player_db.exists() {
+        return // Database file doesn't exist anymore for some reason
+    }
+
+    let _ = fs::remove_file(player_db);
 }

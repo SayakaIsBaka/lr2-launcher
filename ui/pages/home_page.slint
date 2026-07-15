@@ -19,11 +19,12 @@ export component HomePage inherits Page {
     callback set_lr2_path();
     callback show_new_player_window();
     callback player_change(current-player: string);
+    callback delete_player(player: string);
 
     GroupBox {
         title: @tr("Player");
         HorizontalBox {
-            ComboBox {
+            players := ComboBox {
                 model: ApplicationGlobal.players;
                 current-index <=> ApplicationGlobal.selected_player;
                 selected(current-player) => {root.player_change(current-player)};
@@ -42,6 +43,7 @@ export component HomePage inherits Page {
             }
             Button {
                 text: @tr("-");
+                clicked => {root.delete_player(players.current-value)}
                 Tooltip {
                     text: @markdown("\{@tr("Remove player")}");
                 }

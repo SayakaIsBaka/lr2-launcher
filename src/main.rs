@@ -45,6 +45,23 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
 
     // TODO: start game button, player delete and language change callback
 
+    app.on_player_change({
+        let app_weak = app.as_weak();
+        let config_clone = config.clone();
+
+        move |current_player| {
+            let app = app_weak.unwrap();
+            let app_globals = app.global::<ApplicationGlobal>();
+            let config = config_clone.lock().unwrap();
+
+            if current_player.to_string() == config.player.id {
+                app_globals.set_password(config.player.pass.clone().into());
+            } else {
+                app_globals.set_password("".into());
+            }
+        }
+    });
+
     app.on_show_new_player_window({
         let app_weak = app.as_weak();
 
@@ -63,16 +80,24 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
                     let lr2_folder_path = lr2_path.parent().unwrap();
 
                     let new_user_window = new_user_window_weak.unwrap();
-                    match player::create_new_player(username.into(), password.into(), lr2_folder_path) {
+                    match player::create_new_player(username.clone().into(), password.clone().into(), lr2_folder_path) {
                         Ok(()) => {
                             let players = parse_players(&lr2_folder_path.to_path_buf()).unwrap();
-                            app_globals.set_players(ModelRc::from(Rc::new(VecModel::from(players))));
+                            app_globals.set_players(ModelRc::from(Rc::new(VecModel::from(players.clone()))));
+                            match find_player_in_array(&players, &username.to_string()) {
+                                Some(i) => {
+                                    app_globals.set_selected_player(i32::try_from(i).unwrap());
+                                    app_globals.set_password(password.clone());
+                                }
+                                None => () // This isn't really supposed to happen
+                            }
                             new_user_window.hide().unwrap()
                         }
                         Err(e) => { new_user_window.set_error_text(e.to_string().into()) }
                     };
                 }
             });
+
             new_user_window.on_user_create_cancel({
                 let new_user_window_weak = new_user_window.as_weak();
 
@@ -172,6 +197,11 @@ fn save_new_lr2_config(app_globals: &ApplicationGlobal, config: &Mutex<lr2_confi
     let mut config_new = config.lock().unwrap();
 
     // Home
+    match app_globals.get_players().row_data(usize::try_from(app_globals.get_selected_player()).unwrap()) {
+        Some(player) => { config_new.player.id = player.to_string() },
+        None => { panic!("Player doesn't exist anymore") }
+    };
+    config_new.player.pass = app_globals.get_password().into();
     config_new.system.windowsize_x = app_globals.get_window_x();
     config_new.system.windowsize_y = app_globals.get_window_y();
     config_new.system.screenmode = u8::try_from(app_globals.get_screenmode()).unwrap();
@@ -341,6 +371,10 @@ fn parse_players(lr2_folder_path: &PathBuf) -> Result<Vec<SharedString>> {
     Ok(players)
 }
 
+fn find_player_in_array(players: &Vec<SharedString>, username: &String) -> Option<usize> {
+    players.iter().position(|x| x.as_str() == username)
+}
+
 fn parse_lr2_config(lr2_folder_path: &PathBuf) -> Result<lr2_config::Config> {
     let config_file_path = lr2_folder_path.join("LR2files\\Config\\config.xml");
     let config_file = File::open(config_file_path)?;
@@ -394,7 +428,14 @@ fn load_lr2_config(app_globals: &ApplicationGlobal, lr2_path: &PathBuf) -> Resul
     let config = parse_lr2_config(&lr2_folder_path).unwrap_or_else(|e| {panic!("{}", e) });
 
     // Home
-    app_globals.set_players(ModelRc::from(Rc::new(VecModel::from(players))));
+    app_globals.set_players(ModelRc::from(Rc::new(VecModel::from(players.clone()))));
+    match find_player_in_array(&players, &config.player.id) {
+        Some(i) => {
+            app_globals.set_selected_player(i32::try_from(i).unwrap());
+            app_globals.set_password(config.player.pass.clone().into());
+        }
+        None => ()
+    }
     app_globals.set_window_x(config.system.windowsize_x);
     app_globals.set_window_y(config.system.windowsize_y);
     app_globals.set_screenmode(config.system.screenmode.into());

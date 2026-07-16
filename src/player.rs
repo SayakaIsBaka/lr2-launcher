@@ -1,6 +1,6 @@
 use std::{fs, path::Path};
 use anyhow::{Result, bail};
-use rusqlite::Connection;
+use rusqlite::{Connection, OpenFlags};
 
 pub fn create_new_player(username: String, password: String, lr2_folder_path: &Path) -> Result<()> {
     let mut player_db = lr2_folder_path.join("LR2files\\Database\\Score\\").join(&username);
@@ -8,7 +8,7 @@ pub fn create_new_player(username: String, password: String, lr2_folder_path: &P
     if player_db.exists() {
         bail!("User already exists!");
     }
-    let conn = Connection::open(player_db.as_os_str().to_str().unwrap())?;
+    let conn = Connection::open(&player_db)?;
     
     conn.execute(
         r#"CREATE TABLE player(
@@ -97,9 +97,6 @@ pub fn create_new_player(username: String, password: String, lr2_folder_path: &P
 pub fn delete_player(username: String, lr2_folder_path: &Path) {
     let mut player_db = lr2_folder_path.join("LR2files\\Database\\Score\\").join(&username);
     player_db.add_extension("db");
-    if !player_db.exists() {
-        return // Database file doesn't exist anymore for some reason
-    }
 
     let _ = fs::remove_file(player_db);
 }
@@ -107,10 +104,8 @@ pub fn delete_player(username: String, lr2_folder_path: &Path) {
 pub fn are_credentials_valid(username: &String, password: &String, lr2_folder_path: &Path) -> Result<bool> {
     let mut player_db = lr2_folder_path.join("LR2files\\Database\\Score\\").join(&username);
     player_db.add_extension("db");
-    if !player_db.exists() {
-        bail!("Player does not exist");
-    }
-    let conn = Connection::open(player_db.as_os_str().to_str().unwrap())?;
+
+    let conn = Connection::open_with_flags(&player_db, OpenFlags::SQLITE_OPEN_READ_ONLY)?;
     let mut stmt = conn.prepare("SELECT hash FROM player")?;
     let res = stmt.query_one([], |row| {
         let ref_hash: String = row.get(0)?;

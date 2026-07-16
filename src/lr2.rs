@@ -8,28 +8,30 @@ use crate::{ApplicationGlobal, audio::reload_devices, utils::{find_player_in_arr
 
 pub mod lr2_config;
 
-fn parse_lr2_config(lr2_folder_path: &PathBuf) -> Result<lr2_config::Config> {
-    let config_file_path = lr2_folder_path.join("LR2files\\Config\\config.xml");
-    let config_file = File::open(config_file_path)?;
-    let config: lr2_config::Config = quick_xml::de::from_reader(BufReader::new(config_file))?;
-    Ok(config)
-}
+impl lr2_config::Config {
+    pub fn load(lr2_folder_path: &PathBuf) -> Result<lr2_config::Config> {
+        let config_file_path = lr2_folder_path.join("LR2files\\Config\\config.xml");
+        let config_file = File::open(config_file_path)?;
+        let config: lr2_config::Config = quick_xml::de::from_reader(BufReader::new(config_file))?;
+        Ok(config)
+    }
 
-fn write_lr2_config(lr2_folder_path: &Path, config: &lr2_config::Config) -> Result<()> {
-    let config_path = lr2_folder_path.join("LR2files\\Config\\config.xml");
-    let mut config_file = File::create(config_path)?;
+    fn write(&self, lr2_folder_path: &Path) -> Result<()> {
+        let config_path = lr2_folder_path.join("LR2files\\Config\\config.xml");
+        let mut config_file = File::create(config_path)?;
 
-    let mut buffer = String::from("<?xml version=\"1.0\" encoding=\"shift_jis\"?>\n");
-    let mut ser = quick_xml::se::Serializer::with_root(&mut buffer, Some("config"))?;
-    ser.empty_element_handling(EmptyElementHandling::Expanded);
-    ser.indent('\t', 1);
-    config.serialize(ser).unwrap();
-    buffer = buffer.replace("\n", "\r\n");
+        let mut buffer = String::from("<?xml version=\"1.0\" encoding=\"shift_jis\"?>\n");
+        let mut ser = quick_xml::se::Serializer::with_root(&mut buffer, Some("config"))?;
+        ser.empty_element_handling(EmptyElementHandling::Expanded);
+        ser.indent('\t', 1);
+        self.serialize(ser).unwrap();
+        buffer = buffer.replace("\n", "\r\n");
 
-    let config_encoded = SHIFT_JIS.encode(&buffer);
-    config_file.write_all(&config_encoded.0)?;
+        let config_encoded = SHIFT_JIS.encode(&buffer);
+        config_file.write_all(&config_encoded.0)?;
 
-    Ok(())
+        Ok(())
+    }
 }
 
 pub fn parse_players(lr2_folder_path: &PathBuf) -> Result<Vec<SharedString>> {
@@ -62,7 +64,7 @@ pub fn load_lr2_config(app_globals: &ApplicationGlobal, lr2_path: &PathBuf) -> R
 
     // TODO: handle case where config does not exist (aka very first launch)
     let players = parse_players(&lr2_folder_path).unwrap_or_else(|_| {panic!("Error reading scores, folder structure is probably wrong") });
-    let config = parse_lr2_config(&lr2_folder_path).unwrap_or_else(|e| {panic!("{}", e) });
+    let config = lr2_config::Config::load(&lr2_folder_path).unwrap_or_else(|e| {panic!("{}", e) });
 
     // Home
     app_globals.set_players(ModelRc::from(Rc::new(VecModel::from(players.clone()))));
@@ -164,5 +166,5 @@ pub fn save_new_lr2_config(app_globals: &ApplicationGlobal, config: &Mutex<lr2_c
 
     let lr2_path: PathBuf = app_globals.get_lr2_path().to_string().into();
     let lr2_folder_path = lr2_path.parent().unwrap();
-    write_lr2_config(lr2_folder_path, &config_new).unwrap();
+    config_new.write(lr2_folder_path).unwrap();
 }

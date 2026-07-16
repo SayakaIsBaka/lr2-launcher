@@ -17,7 +17,7 @@ pub fn init_launcher(app: &App) -> (lr2_config::Config, config::Config) {
     let launcher_path = current_exe().unwrap();
     let launcher_dir = launcher_path.parent().unwrap();
 
-    let mut launcher_config = config::load_launcher_config(launcher_dir).unwrap_or_else(|_| config::generate_default_config(launcher_dir).unwrap());
+    let mut launcher_config = config::Config::load(launcher_dir).unwrap_or_else(|_| config::generate_default_config(launcher_dir).unwrap());
     let lr2body_exists = launcher_config.lr2_path.try_exists().unwrap_or(false);
 
     if !lr2body_exists {

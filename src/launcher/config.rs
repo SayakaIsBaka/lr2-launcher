@@ -34,15 +34,25 @@ pub struct Config {
     pub disable_score: bool,
 }
 
-fn write_launcher_config(launcher_dir: &Path, config: &Config) -> Result<()> {
-    let launcher_config_path = launcher_dir.join("lr2-launcher.xml");
-    let config_file = File::create(launcher_config_path)?;
+impl Config {
+    pub fn load(launcher_dir: &Path) -> Result<Config> {
+        let launcher_config_path = launcher_dir.join("lr2-launcher.xml");
+        let config_file = File::open(launcher_config_path)?;
+        let config: Config = quick_xml::de::from_reader(BufReader::new(config_file))?;
 
-    let mut writer = quick_xml::Writer::new_with_indent(BufWriter::new(config_file), b' ', 4);
-    writer.write_event(Event::Decl(BytesDecl::new("1.0", Some("UTF-8"), None)))?;
-    writer.write_serializable("config", config)?;
+        Ok(config)
+    }
 
-    Ok(())
+    fn write(&self, launcher_dir: &Path) -> Result<()> {
+        let launcher_config_path = launcher_dir.join("lr2-launcher.xml");
+        let config_file = File::create(launcher_config_path)?;
+
+        let mut writer = quick_xml::Writer::new_with_indent(BufWriter::new(config_file), b' ', 4);
+        writer.write_event(Event::Decl(BytesDecl::new("1.0", Some("UTF-8"), None)))?;
+        writer.write_serializable("config", self)?;
+
+        Ok(())
+    }
 }
 
 pub fn generate_default_config(launcher_dir: &Path) -> Result<Config> {
@@ -52,7 +62,7 @@ pub fn generate_default_config(launcher_dir: &Path) -> Result<Config> {
         language: Language::English,
         disable_score: false,
     };
-    write_launcher_config(launcher_dir, &default_config)?;
+    default_config.write(launcher_dir)?;
     Ok(default_config)
 }
 
@@ -66,13 +76,5 @@ pub fn save_new_launcher_config(app_globals: &ApplicationGlobal, launcher_config
 
     let launcher_path = current_exe().unwrap();
     let launcher_dir = launcher_path.parent().unwrap();
-    write_launcher_config(launcher_dir, &launcher_config_new).unwrap();
-}
-
-pub fn load_launcher_config(launcher_dir: &Path) -> Result<Config> {
-    let launcher_config_path = launcher_dir.join("lr2-launcher.xml");
-    let config_file = File::open(launcher_config_path)?;
-    let config: Config = quick_xml::de::from_reader(BufReader::new(config_file))?;
-
-    Ok(config)
+    launcher_config_new.write(launcher_dir).unwrap();
 }

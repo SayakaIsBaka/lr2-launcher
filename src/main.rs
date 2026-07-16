@@ -1,8 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod lr2_config;
-mod wasapi;
-mod directsound;
+mod audio;
 mod launcher_config;
 mod player;
 mod process;
@@ -463,32 +462,8 @@ fn jukebox_paths_to_slint_arr(paths: &Option<Vec<String>>) -> Result<ModelRc<Sta
     Ok(VecModel::from_slice(standard_list_view_vec.as_slice()))
 }
 
-fn get_audio_devices(device_type: i32) -> Result<ModelRc<SharedString>> {
-    let mut device_list_vec: Vec<SharedString> = vec![];
-    match device_type {
-        0 => { // DirectSound
-            device_list_vec = directsound::get_devices()?;
-        },
-        1 => { // WASAPI
-            let wasapi_enumerator = wasapi::WasapiDeviceEnumerator::new()?;
-            device_list_vec = wasapi_enumerator.get_devices()?;
-        },
-        2 => { // ASIO
-            let asio_key = windows_registry::LOCAL_MACHINE.open("SOFTWARE\\ASIO")?;
-            for key in asio_key.keys()? {
-                device_list_vec.push(key.into());
-            }
-        },
-        _ => {
-            bail!("Invalid device type");
-        }
-    }
-    let device_list = Rc::new(VecModel::from(device_list_vec));
-    Ok(ModelRc::from(device_list))
-}
-
 fn reload_devices(app_globals: &ApplicationGlobal, device_type: i32) {
-    app_globals.set_drivers(get_audio_devices(device_type).unwrap_or_default());
+    app_globals.set_drivers(audio::get_audio_devices(device_type).unwrap_or_default());
 }
 
 fn load_lr2_config(app_globals: &ApplicationGlobal, lr2_path: &PathBuf) -> Result<lr2_config::Config> {

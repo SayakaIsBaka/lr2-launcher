@@ -1,7 +1,6 @@
 use slint::SharedString;
 use windows::Win32::{Devices::FunctionDiscovery::PKEY_Device_FriendlyName, Media::Audio::{DEVICE_STATE_ACTIVE, EDataFlow, ERole, IMMDevice, IMMDeviceEnumerator, MMDeviceEnumerator}, System::Com::{CLSCTX_ALL, CoCreateInstance, STGM_READ, StructuredStorage::PropVariantClear}};
 use anyhow::Result;
-
 pub struct WasapiDeviceEnumerator {
     enumerator: IMMDeviceEnumerator
 }

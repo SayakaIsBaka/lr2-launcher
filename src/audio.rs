@@ -1,6 +1,7 @@
 use std::rc::Rc;
 use slint::{ModelRc, SharedString, VecModel};
 use anyhow::{Result, bail};
+use crate::ApplicationGlobal;
 
 #[cfg(windows)]
 mod windows;
@@ -25,4 +26,8 @@ pub fn get_audio_devices(device_type: i32) -> Result<ModelRc<SharedString>> {
     }
     let device_list = Rc::new(VecModel::from(device_list_vec));
     Ok(ModelRc::from(device_list))
+}
+
+pub fn reload_devices(app_globals: &ApplicationGlobal, device_type: i32) {
+    app_globals.set_drivers(get_audio_devices(device_type).unwrap_or_default());
 }

@@ -1,7 +1,7 @@
 import {
     GroupBox,
     ComboBox,
-    Switch,
+    Switch, GridBox,
 } from "std-widgets.slint";
 
 import { Page } from "page.slint";
@@ -14,16 +14,32 @@ export component OpenLR2Page inherits Page {
     GroupBox {
         title: @tr("System");
 
-        HorizontalLayout {
-            alignment: start;
-            spacing: 10px;
-            Text {
-                vertical-alignment: center;
-                text: @tr("Default skin resolution type");
+        GridBox {
+            Row {
+                Text {
+                    vertical-alignment: center;
+                    text: @tr("Default skin resolution type");
+                }
+                ComboBox {
+                    model: [@tr("SD"), @tr("HD"), @tr("FHD")];
+                    current-index <=> ApplicationGlobal.resolution;
+                }
             }
-            ComboBox {
-                model: [@tr("SD"), @tr("HD"), @tr("FHD")];
-                current-index <=> ApplicationGlobal.resolution;
+            Row {
+                Text {
+                    vertical-alignment: center;
+                    text: @tr("Fullscreen filter type");
+                }
+                ComboBox {
+                    model: [@tr("Bilinear"), @tr("Nearest"), @tr("CRT")];
+                    current-index <=> ApplicationGlobal.fullscreenfilter;
+                }
+            }
+            Row {
+                Switch {
+                    text: @tr("Stretch fullscreen to screen");
+                    checked <=> ApplicationGlobal.fullscreenfitstretch;
+                }
             }
         }
     }
@@ -31,9 +47,13 @@ export component OpenLR2Page inherits Page {
     GroupBox {
         title: @tr("Play");
 
-        Switch {
-            text: @tr("Gauge Auto Shift");
-            checked <=> ApplicationGlobal.gaugeautoshift;
+        GridBox {
+            Row {
+                Switch {
+                    text: @tr("Gauge Auto Shift");
+                    checked <=> ApplicationGlobal.gaugeautoshift;
+                }
+            }
         }
     }
 
@@ -49,6 +69,7 @@ export component OpenLR2Page inherits Page {
             }
             ComboBox {
                 model: ApplicationGlobal.customirs;
+                current-index <=> ApplicationGlobal.selectedir_index;
                 current-value <=> ApplicationGlobal.display_ir;
             }
         }

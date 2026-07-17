@@ -13,9 +13,12 @@ pub struct Config {
     pub network: Network,
 }
 
+#[serde_as]
 #[derive(Serialize, Deserialize, Default)]
 pub struct System {
     pub resolution: u8,
+    pub fullscreenfilter: u8,
+    #[serde_as(as = "BoolFromInt")] pub fullscreenfitstretch: bool,
 }
 
 #[serde_as]

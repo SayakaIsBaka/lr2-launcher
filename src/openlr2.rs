@@ -69,6 +69,8 @@ pub fn load_openlr2_config(app_globals: &ApplicationGlobal, lr2_path: &PathBuf) 
     let customirs = list_available_customirs(&lr2_folder_path).unwrap_or_default();
     
     app_globals.set_resolution(config.system.resolution.into());
+    app_globals.set_fullscreenfilter(config.system.fullscreenfilter.into());
+    app_globals.set_fullscreenfitstretch(config.system.fullscreenfitstretch);
     app_globals.set_gaugeautoshift(config.play.gaugeautoshift);
     app_globals.set_customirs(ModelRc::from(Rc::new(VecModel::from(customirs.clone()))));
     match customirs.iter().position(|x| x.as_str() == config.network.display_ir) {
@@ -84,6 +86,8 @@ pub fn save_new_openlr2_config(app_globals: &ApplicationGlobal, config: &Mutex<o
     let mut config_new = config.lock().unwrap();
 
     config_new.system.resolution = u8::try_from(app_globals.get_resolution()).unwrap();
+    config_new.system.fullscreenfilter = u8::try_from(app_globals.get_fullscreenfilter()).unwrap();
+    config_new.system.fullscreenfitstretch = app_globals.get_fullscreenfitstretch();
     config_new.play.gaugeautoshift = app_globals.get_gaugeautoshift();
     config_new.network.display_ir = app_globals.get_display_ir().to_string();
 

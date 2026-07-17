@@ -33,11 +33,10 @@ jobs:
     - name: Upload artifact (x64)
       uses: actions/upload-artifact@v7.0.1
       with:
+        name: lr2-launcher.x64
         path: target/release/lr2-launcher.exe
-        archive: false
     - name: Upload artifact (x86)
       uses: actions/upload-artifact@v7.0.1
       with:
-        name: lr2-launcher.x86.exe
+        name: lr2-launcher.x86
         path: target/i686-pc-windows-msvc/release/lr2-launcher.exe
-        archive: false

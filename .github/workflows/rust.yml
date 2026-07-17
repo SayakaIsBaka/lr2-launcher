@@ -14,19 +14,30 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Add standard library source
+    - name: Add standard library source (x64)
       run: rustup component add rust-src --toolchain nightly-x86_64-pc-windows-msvc
-    - name: Build
+    - name: Add standard library source (x64)
+      run: rustup component add rust-src --toolchain nightly-i686-pc-windows-msvc
+    - name: Build (x64)
       run: cargo release
+    - name: Build (x86)
+      run: cargo release --target i686-pc-windows-msvc
     - name: Run UPX
       uses: crazy-max/ghaction-upx@v4
       with:
         version: latest
         files: |
           target/release/lr2-launcher.exe
+          target/i686-pc-windows-msvc/release/lr2-launcher.exe
         args: -9
-    - name: Upload artifact
+    - name: Upload artifact (x64)
       uses: actions/upload-artifact@v7.0.1
       with:
         path: target/release/lr2-launcher.exe
+        archive: false
+    - name: Upload artifact (x86)
+      uses: actions/upload-artifact@v7.0.1
+      with:
+        name: lr2-launcher.x86.exe
+        path: target/i686-pc-windows-msvc/release/lr2-launcher.exe
         archive: false

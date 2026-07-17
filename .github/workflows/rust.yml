@@ -1,0 +1,35 @@
+name: build
+
+on:
+  push:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        toolchain:
+        - nightly
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      run: cargo release
+    - name: Run UPX
+      uses: crazy-max/ghaction-upx@v4
+      with:
+        version: latest
+        files: |
+          target/release/lr2-launcher.exe
+        args: -9
+    - name: Upload artifact
+      uses: actions/upload-artifact@v7.0.1
+      with:
+        name: lr2-launcher.exe
+        path: |
+          target/release/lr2-launcher.exe

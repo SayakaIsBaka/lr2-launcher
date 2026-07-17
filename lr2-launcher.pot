@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-07-17 13:41+0000\n"
+"POT-Creation-Date: 2026-07-17 20:40+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -12,42 +12,52 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ui/launcher.slint:34
+#: ui/launcher.slint:35
 msgctxt "App"
 msgid "Sidebar"
 msgstr ""
 
-#: ui/launcher.slint:35
+#: ui/launcher.slint:36
 msgctxt "App"
 msgid "LR2 launcher"
 msgstr ""
 
-#: ui/launcher.slint:37
+#: ui/launcher.slint:38
 msgctxt "Menu"
 msgid "Home"
 msgstr ""
 
-#: ui/launcher.slint:38
+#: ui/launcher.slint:39
 msgctxt "Menu"
 msgid "Jukebox"
 msgstr ""
 
-#: ui/launcher.slint:39
+#: ui/launcher.slint:40
 msgctxt "Menu"
 msgid "Play options"
 msgstr ""
 
-#: ui/launcher.slint:40
+#: ui/launcher.slint:41
 msgctxt "Menu"
 msgid "System options"
 msgstr ""
 
-#: ui/launcher.slint:43
+#: ui/launcher.slint:42
+msgctxt "Menu"
+msgid "OpenLR2 options"
+msgstr ""
+
+#: ui/launcher.slint:45
 msgctxt "App"
 msgid "Start game"
 msgstr ""
 
 #: ui/launcher.slint:51
+msgctxt "App"
+msgid "Jukebox is empty!"
+msgstr ""
+
+#: ui/launcher.slint:58
 msgctxt "App"
 msgid "Content"
 msgstr ""
@@ -175,6 +185,81 @@ msgstr ""
 #: ui/pages/jukebox_page.slint:14
 msgctxt "JukeboxPage"
 msgid "Jukebox"
+msgstr ""
+
+#: ui/pages/openlr2_page.slint:11
+msgctxt "OpenLR2Page"
+msgid "OpenLR2 options"
+msgstr ""
+
+#: ui/pages/openlr2_page.slint:15
+msgctxt "OpenLR2Page"
+msgid "System"
+msgstr ""
+
+#: ui/pages/openlr2_page.slint:21
+msgctxt "OpenLR2Page"
+msgid "Default skin resolution type"
+msgstr ""
+
+#: ui/pages/openlr2_page.slint:24
+msgctxt "OpenLR2Page"
+msgid "SD"
+msgstr ""
+
+#: ui/pages/openlr2_page.slint:24
+msgctxt "OpenLR2Page"
+msgid "HD"
+msgstr ""
+
+#: ui/pages/openlr2_page.slint:24
+msgctxt "OpenLR2Page"
+msgid "FHD"
+msgstr ""
+
+#: ui/pages/openlr2_page.slint:31
+msgctxt "OpenLR2Page"
+msgid "Fullscreen filter type"
+msgstr ""
+
+#: ui/pages/openlr2_page.slint:34
+msgctxt "OpenLR2Page"
+msgid "Bilinear"
+msgstr ""
+
+#: ui/pages/openlr2_page.slint:34
+msgctxt "OpenLR2Page"
+msgid "Nearest"
+msgstr ""
+
+#: ui/pages/openlr2_page.slint:34
+msgctxt "OpenLR2Page"
+msgid "CRT"
+msgstr ""
+
+#: ui/pages/openlr2_page.slint:40
+msgctxt "OpenLR2Page"
+msgid "Stretch fullscreen to screen"
+msgstr ""
+
+#: ui/pages/openlr2_page.slint:48
+msgctxt "OpenLR2Page"
+msgid "Play"
+msgstr ""
+
+#: ui/pages/openlr2_page.slint:53
+msgctxt "OpenLR2Page"
+msgid "Gauge Auto Shift"
+msgstr ""
+
+#: ui/pages/openlr2_page.slint:61
+msgctxt "OpenLR2Page"
+msgid "Network"
+msgstr ""
+
+#: ui/pages/openlr2_page.slint:68
+msgctxt "OpenLR2Page"
+msgid "Display IR"
 msgstr ""
 
 #: ui/pages/page.slint:21

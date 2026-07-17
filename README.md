@@ -10,6 +10,7 @@ It is **HIGHLY** recommended you perform a backup of your LR2 and OpenLR2 config
 
 - Translations (it's in the GUI but it doesn't do anything yet, also I don't have anyone to translate the strings)
 - Course file (`.lr2crs` files) add
+- Disable score save switch does not actually work (the `-ns` argument only works when a chart is directly loaded apparently)
 - File / folder drag and drop support (waiting for Slint to support it which should hopefully be [soon](https://github.com/slint-ui/slint/issues/1967))
 - Other things probably (obscure LR2 options / features no one uses for example)
 

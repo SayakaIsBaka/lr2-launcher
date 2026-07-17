@@ -44,8 +44,6 @@ bitflags! {
 
 #[derive(Serialize, Deserialize)]
 pub struct Config {
-    #[serde(rename = "$text")]
-    pub text: Option<String>,
     pub system: System,
     pub jukebox: Jukebox,
     pub play: Play,
@@ -61,8 +59,6 @@ pub struct Config {
 #[serde_as]
 #[derive(Serialize, Deserialize, Default)]
 pub struct System {
-    #[serde(rename = "$text")]
-    pub text: Option<String>,
     pub screenmode: u8, // 0: Fullscreen, 1: Windowed, 2: Borderless
     #[serde_as(as = "BoolFromInt")] pub vsync: bool,
     pub directdraw: i32,
@@ -92,15 +88,11 @@ pub struct System {
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Jukebox {
-    #[serde(rename = "$text")]
-    pub text: Option<String>,
     pub path: Option<Vec<String>>,
 }
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Play {
-    #[serde(rename = "$text")]
-    pub text: Option<String>,
     pub hs: i32,
     pub hstype: i32,
     pub hsmax: i32,
@@ -133,8 +125,6 @@ pub struct Play {
 #[serde_as]
 #[derive(Serialize, Deserialize, Default)]
 pub struct Sound {
-    #[serde(rename = "$text")]
-    pub text: Option<String>,
     pub bufferlength: i32,
     pub numbuffers: i32,
     pub disabledsp: i32,
@@ -175,8 +165,6 @@ pub struct Sound {
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Player {
-    #[serde(rename = "$text")]
-    pub text: Option<String>,
     pub id: String,
     pub pass: String,
     pub name: Name,
@@ -199,8 +187,6 @@ pub struct Irpass {
 #[serde_as]
 #[derive(Serialize, Deserialize, Default)]
 pub struct ConfigSelect {
-    #[serde(rename = "$text")]
-    pub text: Option<String>,
     pub sort: i32,
     pub key: i32,
     pub difficulty: i32,
@@ -229,8 +215,6 @@ pub struct ConfigSelect {
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Skin {
-    #[serde(rename = "$text")]
-    pub text: Option<String>,
     pub play_7: String,
     pub play_5: String,
     pub play_14: String,
@@ -260,8 +244,6 @@ pub struct Play9B {
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Network {
-    #[serde(rename = "$text")]
-    pub text: Option<String>,
     pub lr1ir: i32,
     pub lr1id: String,
     pub lr1pass: String,
@@ -277,8 +259,6 @@ pub struct Mail {
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Course {
-    #[serde(rename = "$text")]
-    pub text: Option<String>,
     pub optimumlevel_7: i32,
     pub optimumlevel_5: i32,
     pub optimumlevel_10: i32,
@@ -296,8 +276,6 @@ pub struct Course {
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Tools {
-    #[serde(rename = "$text")]
-    pub text: Option<String>,
     pub bmse_body: String,
     pub bmse_option: BmseOption,
     pub movie_audio: i32,
@@ -326,7 +304,6 @@ pub struct OggdecOption {
 impl Default for Config {
     fn default() -> Config {
         Config {
-            text: None,
             system: System {
                 autoreload: 2,
                 mainsleep: 3,

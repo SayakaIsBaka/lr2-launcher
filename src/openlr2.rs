@@ -51,7 +51,6 @@ fn list_available_customirs(lr2_folder_path: &PathBuf) -> Result<Vec<SharedStrin
         let f_name = entry.file_name().to_string_lossy();
 
         if f_name.ends_with(EXTENSION) {
-            println!("{}", entry.path().display());
             match get_customir_name(entry.path()) {
                 Ok(res) => customirs.push(res.into()),
                 Err(_) => {}

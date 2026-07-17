@@ -1,6 +1,55 @@
-use std::{fs, path::Path};
+use std::{fs, path::{Path, PathBuf}, rc::Rc};
 use anyhow::{Result, bail};
 use rusqlite::{Connection, OpenFlags};
+use slint::{ComponentHandle, ModelRc, SharedString, VecModel, language::ColorScheme};
+
+use crate::{App, ApplicationGlobal, NewUser, Palette, lr2, utils};
+
+pub fn show_new_player_window(app: &App) {
+    let new_user_window = NewUser::new().unwrap();
+    let is_dark = app.global::<ApplicationGlobal>().get_darkmode();
+    new_user_window.global::<Palette>().set_color_scheme(if is_dark { ColorScheme::Dark } else { ColorScheme::Light });
+
+    new_user_window.on_user_create_ok({
+        let new_user_window_weak = new_user_window.as_weak();
+        let app_weak = app.as_weak();
+
+        move |username: SharedString, password: SharedString| {
+            let app = app_weak.unwrap();
+            let app_globals = app.global::<ApplicationGlobal>();
+            let lr2_path: PathBuf = app_globals.get_lr2_path().to_string().clone().into();
+            let lr2_folder_path = lr2_path.parent().unwrap();
+
+            let new_user_window = new_user_window_weak.unwrap();
+            match create_new_player(username.clone().into(), password.clone().into(), lr2_folder_path) {
+                Ok(()) => {
+                    let players = lr2::parse_players(&lr2_folder_path.to_path_buf()).unwrap();
+                    app_globals.set_players(ModelRc::from(Rc::new(VecModel::from(players.clone()))));
+                    match utils::find_player_in_array(&players, &username.to_string()) {
+                        Some(i) => {
+                            app_globals.set_selected_player(i32::try_from(i).unwrap());
+                            app_globals.set_password(password.clone());
+                        }
+                        None => () // This isn't really supposed to happen
+                    }
+                    app.show().unwrap();
+                    new_user_window.hide().unwrap()
+                }
+                Err(e) => { new_user_window.set_error_text(e.to_string().into()) }
+            };
+        }
+    });
+
+    new_user_window.on_user_create_cancel({
+        let new_user_window_weak = new_user_window.as_weak();
+
+        move || {
+            new_user_window_weak.unwrap().hide().unwrap();
+        }
+    });
+
+    new_user_window.show().unwrap();
+}
 
 pub fn create_new_player(username: String, password: String, lr2_folder_path: &Path) -> Result<()> {
     let mut player_db = lr2_folder_path.join("LR2files\\Database\\Score\\").join(&username);

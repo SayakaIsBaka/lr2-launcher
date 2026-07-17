@@ -34,16 +34,6 @@ impl lr2_config::Config {
     }
 }
 
-fn get_default_lr2_config(prompt_player_create: bool) -> Result<lr2_config::Config> {
-    let config = lr2_config::Config::default();
-
-    if prompt_player_create {
-            // TODO: prompt user creation if no players have been found
-    }
-
-    Ok(config)
-}
-
 pub fn parse_players(lr2_folder_path: &PathBuf) -> Result<Vec<SharedString>> {
     let score_folder = lr2_folder_path.join("LR2files\\Database\\Score");
     let score_folder_exists = score_folder.try_exists().unwrap_or(false);
@@ -73,7 +63,7 @@ pub fn load_lr2_config(app_globals: &ApplicationGlobal, lr2_path: &PathBuf) -> R
     lr2_folder_path.pop();
 
     let players = parse_players(&lr2_folder_path).unwrap_or_else(|_| {panic!("Error reading scores, folder structure is probably wrong") });
-    let config = lr2_config::Config::load(&lr2_folder_path).unwrap_or(get_default_lr2_config(players.is_empty()).unwrap_or_else(|_| {panic!("User aborted")}));
+    let config = lr2_config::Config::load(&lr2_folder_path).unwrap_or_default();
 
     // Home
     app_globals.set_players(ModelRc::from(Rc::new(VecModel::from(players.clone()))));
@@ -131,7 +121,7 @@ pub fn save_new_lr2_config(app_globals: &ApplicationGlobal, config: &Mutex<lr2_c
     // Home
     match app_globals.get_players().row_data(usize::try_from(app_globals.get_selected_player()).unwrap()) {
         Some(player) => { config_new.player.id = player.to_string() },
-        None => { panic!("Player doesn't exist anymore") }
+        None => { config_new.player.id = "".into() }
     };
     config_new.player.pass = app_globals.get_password().into();
     config_new.system.windowsize_x = app_globals.get_window_x();

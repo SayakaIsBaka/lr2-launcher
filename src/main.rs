@@ -7,7 +7,7 @@ mod player;
 mod process;
 mod utils;
 
-use slint::{CloseRequestResponse, Model, ModelRc, SharedString, VecModel};
+use slint::{CloseRequestResponse, Model, ModelRc, VecModel, run_event_loop};
 use std::{path::PathBuf, rc::Rc, sync::{Arc, Mutex}};
 
 use crate::lr2::lr2_config;
@@ -25,7 +25,13 @@ pub fn main() {
 
     setup_callbacks(&app, config_arc, launcher_config_arc);
 
-    app.run().unwrap();
+    if app.global::<ApplicationGlobal>().get_players().row_count() == 0 {
+        player::show_new_player_window(&app);
+    } else {
+        app.show().unwrap();
+    }
+    run_event_loop().unwrap();
+    app.hide().unwrap();
 }
 
 fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_config: Arc<Mutex<config::Config>>) {
@@ -135,46 +141,7 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
 
         move || {
             // Show second window with username / password input
-            let new_user_window = NewUser::new().unwrap();
-
-            new_user_window.on_user_create_ok({
-                let new_user_window_weak = new_user_window.as_weak();
-                let app_weak = app_weak.unwrap().as_weak();
-
-                move |username: SharedString, password: SharedString| {
-                    let app = app_weak.unwrap();
-                    let app_globals = app.global::<ApplicationGlobal>();
-                    let lr2_path: PathBuf = app_globals.get_lr2_path().to_string().clone().into();
-                    let lr2_folder_path = lr2_path.parent().unwrap();
-
-                    let new_user_window = new_user_window_weak.unwrap();
-                    match player::create_new_player(username.clone().into(), password.clone().into(), lr2_folder_path) {
-                        Ok(()) => {
-                            let players = lr2::parse_players(&lr2_folder_path.to_path_buf()).unwrap();
-                            app_globals.set_players(ModelRc::from(Rc::new(VecModel::from(players.clone()))));
-                            match utils::find_player_in_array(&players, &username.to_string()) {
-                                Some(i) => {
-                                    app_globals.set_selected_player(i32::try_from(i).unwrap());
-                                    app_globals.set_password(password.clone());
-                                }
-                                None => () // This isn't really supposed to happen
-                            }
-                            new_user_window.hide().unwrap()
-                        }
-                        Err(e) => { new_user_window.set_error_text(e.to_string().into()) }
-                    };
-                }
-            });
-
-            new_user_window.on_user_create_cancel({
-                let new_user_window_weak = new_user_window.as_weak();
-
-                move || {
-                    new_user_window_weak.unwrap().hide().unwrap();
-                }
-            });
-
-            new_user_window.show().unwrap();
+            player::show_new_player_window(&app_weak.unwrap());
         }
     });
 

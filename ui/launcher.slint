@@ -42,7 +42,12 @@ export component App inherits Window {
             Button {
                 text: @tr("Start game");
                 primary: true;
+                enabled: ApplicationGlobal.jukebox_paths.length != 0;
                 clicked => {root.launch_game()};
+
+                if ApplicationGlobal.jukebox_paths.length == 0: Tooltip {
+                    text: @markdown("\{@tr("Jukebox is empty!")}");
+                }
             }
         }
 

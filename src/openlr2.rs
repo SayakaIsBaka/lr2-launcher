@@ -10,7 +10,7 @@ pub mod openlr2_config;
 #[repr(C)]
 struct MethodTable {
     get_name: Option<unsafe extern "C" fn() -> *const c_char>,
-    dummy: [u32; 64] // Hopefully this is enough to not have out of bounds writes
+    dummy: [usize; 64] // Hopefully this is enough to not have out of bounds writes
 }
 
 fn get_customir_name(module_path: &Path) -> Result<String> {
@@ -53,7 +53,7 @@ fn list_available_customirs(lr2_folder_path: &PathBuf) -> Result<Vec<SharedStrin
         if f_name.ends_with(EXTENSION) {
             match get_customir_name(entry.path()) {
                 Ok(res) => customirs.push(res.into()),
-                Err(_) => {}
+                Err(_) => {} // Skip library and continue if an error occured during loading (arch mismatch, GetMethodTable not found, etc.)
             };
         }
     }

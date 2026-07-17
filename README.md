@@ -2,7 +2,7 @@
 
 > Experimental launcher for LR2 / [OpenLR2](https://github.com/GOMazk/OpenLR2)
 
-Automated builds can be found in the [Actions](https://github.com/SayakaIsBaka/lr2-launcher/actions) tab (requires a GitHub account) or on [nightly.link](https://nightly.link/SayakaIsBaka/lr2-launcher/workflows/rust/master?preview); **use at your own risk!**
+Automated builds can be found in the [Actions](https://github.com/SayakaIsBaka/lr2-launcher/actions) tab (requires a GitHub account) or on [nightly.link](https://nightly.link/SayakaIsBaka/lr2-launcher/workflows/rust/master?preview); **use at your own risk!** (pick the version that matches OpenLR2's architecture; if you use vanilla LR2 choose x86)
 
 It is **HIGHLY** recommended you perform a backup of your LR2 and OpenLR2 configuration (`LR2files\Config\config.xml` and `LR2files\Config\openlr2-config.xml`) as well as your player databases (`LR2files\Database\Score` folder) before using this! While the player databases are only opened in read-only mode, you never know what can happen.
 
@@ -11,7 +11,9 @@ It is **HIGHLY** recommended you perform a backup of your LR2 and OpenLR2 config
 - Translations (it's in the GUI but it doesn't do anything yet, also I don't have anyone to translate the strings)
 - Course file (`.lr2crs` files) add
 - Disable score save switch does not actually work (the `-ns` argument only works when a chart is directly loaded apparently)
+- CustomIR disabling
 - File / folder drag and drop support (waiting for Slint to support it which should hopefully be [soon](https://github.com/slint-ui/slint/issues/1967))
+- OpenLR2 update check? (I have no idea how to implement that)
 - Other things probably (obscure LR2 options / features no one uses for example)
 
 # Credits

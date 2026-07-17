@@ -1,6 +1,6 @@
 use std::{env::current_exe};
 use slint::{ComponentHandle, language::ColorScheme};
-use crate::{App, ApplicationGlobal, Palette, lr2::{self, lr2_config}, openlr2};
+use crate::{App, ApplicationGlobal, Palette, lr2::{self, lr2_config}, openlr2::{self, openlr2_config}};
 
 pub mod config;
 
@@ -12,7 +12,7 @@ fn set_launcher_initial_values(app_globals: &ApplicationGlobal, launcher_config:
     //TODO: actually set the application language to the selected one here
 }
 
-pub fn init_launcher(app: &App) -> (lr2_config::Config, config::Config) {
+pub fn init_launcher(app: &App) -> (lr2_config::Config, config::Config, openlr2_config::Config) {
     let app_globals = app.global::<ApplicationGlobal>();
     let launcher_path = current_exe().unwrap();
     let launcher_dir = launcher_path.parent().unwrap();
@@ -38,10 +38,10 @@ pub fn init_launcher(app: &App) -> (lr2_config::Config, config::Config) {
 
     set_launcher_initial_values(&app_globals, &launcher_config);
     let config = lr2::load_lr2_config(&app_globals, &launcher_config.lr2_path).unwrap();
-    let _ = openlr2::load_openlr2_config(&app_globals, &launcher_config.lr2_path).unwrap();
+    let openlr2_config = openlr2::load_openlr2_config(&app_globals, &launcher_config.lr2_path).unwrap();
 
     // Init color scheme from Rust (otherwise it is not applied on startup)
     app.global::<Palette>().set_color_scheme(if launcher_config.dark_mode { ColorScheme::Dark } else { ColorScheme::Light });
 
-    (config, launcher_config)
+    (config, launcher_config, openlr2_config)
 }

@@ -11,7 +11,7 @@ mod openlr2;
 use slint::{CloseRequestResponse, Model, ModelRc, VecModel, run_event_loop};
 use std::{path::PathBuf, rc::Rc, sync::{Arc, Mutex}};
 
-use crate::lr2::lr2_config;
+use crate::{lr2::lr2_config, openlr2::openlr2_config};
 use crate::launcher::config;
 
 slint::include_modules!();
@@ -20,11 +20,12 @@ pub fn main() {
     slint::init_translations!(concat!(env!("CARGO_MANIFEST_DIR"), "/lang/"));
 
     let app = App::new().unwrap();
-    let (config, launcher_config) = launcher::init_launcher(&app);
+    let (config, launcher_config, openlr2_config) = launcher::init_launcher(&app);
     let config_arc = Arc::new(Mutex::new(config));
     let launcher_config_arc = Arc::new(Mutex::new(launcher_config));
+    let openlr2_config_arc = Arc::new(Mutex::new(openlr2_config));
 
-    setup_callbacks(&app, config_arc, launcher_config_arc);
+    setup_callbacks(&app, config_arc, launcher_config_arc, openlr2_config_arc);
 
     if app.global::<ApplicationGlobal>().get_players().row_count() == 0 {
         player::show_new_player_window(&app);
@@ -35,7 +36,7 @@ pub fn main() {
     app.hide().unwrap();
 }
 
-fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_config: Arc<Mutex<config::Config>>) {
+fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_config: Arc<Mutex<config::Config>>, openlr2_config: Arc<Mutex<openlr2_config::Config>>) {
     app.on_audio_type_change({
         let app_weak = app.as_weak();
 
@@ -53,6 +54,7 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
         let app_weak = app.as_weak();
         let config_clone = config.clone();
         let launcher_config_clone = launcher_config.clone();
+        let openlr2_config_clone = openlr2_config.clone();
 
         move || {
             let app = app_weak.unwrap();
@@ -77,6 +79,7 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
             } else {
                 lr2::save_new_lr2_config(&app_globals, &config_clone);
                 launcher::config::save_new_launcher_config(&app_globals, &launcher_config_clone);
+                openlr2::save_new_openlr2_config(&app_globals, &openlr2_config_clone);
                 process::launch_game(&lr2_path, app_globals.get_disable_score_save());
 
                 app.hide().unwrap();
@@ -183,6 +186,7 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
     app.on_set_lr2_path({
         let app_weak = app.as_weak();
         let config_clone = config.clone();
+        let openlr2_config_clone = openlr2_config.clone();
 
         move || {
             let app = app_weak.unwrap();
@@ -198,9 +202,13 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
             
             app_globals.set_lr2_path(new_lr2_path.clone().into_os_string().into_string().unwrap().into());
             let config_new = lr2::load_lr2_config(&app_globals, &new_lr2_path).unwrap();
+            let openlr2_config_new = openlr2::load_openlr2_config(&app_globals, &new_lr2_path).unwrap();
 
             let mut config_ref = config_clone.lock().unwrap();
             *config_ref = config_new;
+
+            let mut openlr2_config_ref = openlr2_config_clone.lock().unwrap();
+            *openlr2_config_ref = openlr2_config_new;
         }
     });
 
@@ -208,12 +216,14 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
         let app_weak = app.as_weak();
         let config_clone = config.clone();
         let launcher_config_clone = launcher_config.clone();
+        let openlr2_config_clone = openlr2_config.clone();
 
         move || {
             let app = app_weak.unwrap();
             let app_globals = app.global::<ApplicationGlobal>();
 
             lr2::save_new_lr2_config(&app_globals, &config_clone);
+            openlr2::save_new_openlr2_config(&app_globals, &openlr2_config_clone);
             launcher::config::save_new_launcher_config(&app_globals, &launcher_config_clone);
             
             CloseRequestResponse::HideWindow

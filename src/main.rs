@@ -6,6 +6,7 @@ mod launcher;
 mod player;
 mod process;
 mod utils;
+mod openlr2;
 
 use slint::{CloseRequestResponse, Model, ModelRc, VecModel, run_event_loop};
 use std::{path::PathBuf, rc::Rc, sync::{Arc, Mutex}};

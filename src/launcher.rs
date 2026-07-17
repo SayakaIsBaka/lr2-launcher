@@ -1,6 +1,6 @@
 use std::{env::current_exe};
 use slint::{ComponentHandle, language::ColorScheme};
-use crate::{App, ApplicationGlobal, Palette, lr2::{self, lr2_config}};
+use crate::{App, ApplicationGlobal, Palette, lr2::{self, lr2_config}, openlr2};
 
 pub mod config;
 
@@ -38,6 +38,7 @@ pub fn init_launcher(app: &App) -> (lr2_config::Config, config::Config) {
 
     set_launcher_initial_values(&app_globals, &launcher_config);
     let config = lr2::load_lr2_config(&app_globals, &launcher_config.lr2_path).unwrap();
+    let _ = openlr2::load_openlr2_config(&app_globals, &launcher_config.lr2_path).unwrap();
 
     // Init color scheme from Rust (otherwise it is not applied on startup)
     app.global::<Palette>().set_color_scheme(if launcher_config.dark_mode { ColorScheme::Dark } else { ColorScheme::Light });

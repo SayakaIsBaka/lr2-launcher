@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-07-12 15:12+0000\n"
+"POT-Creation-Date: 2026-07-17 13:41+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -12,44 +12,64 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ui/launcher.slint:26
+#: ui/launcher.slint:34
 msgctxt "App"
 msgid "Sidebar"
 msgstr ""
 
-#: ui/launcher.slint:27
+#: ui/launcher.slint:35
 msgctxt "App"
 msgid "LR2 launcher"
 msgstr ""
 
-#: ui/launcher.slint:29
+#: ui/launcher.slint:37
 msgctxt "Menu"
 msgid "Home"
 msgstr ""
 
-#: ui/launcher.slint:30
+#: ui/launcher.slint:38
 msgctxt "Menu"
 msgid "Jukebox"
 msgstr ""
 
-#: ui/launcher.slint:31
+#: ui/launcher.slint:39
 msgctxt "Menu"
 msgid "Play options"
 msgstr ""
 
-#: ui/launcher.slint:32
+#: ui/launcher.slint:40
 msgctxt "Menu"
 msgid "System options"
 msgstr ""
 
-#: ui/launcher.slint:35
+#: ui/launcher.slint:43
 msgctxt "App"
 msgid "Start game"
 msgstr ""
 
-#: ui/launcher.slint:42
+#: ui/launcher.slint:51
 msgctxt "App"
 msgid "Content"
+msgstr ""
+
+#: ui/new_user.slint:5
+msgctxt "NewUser"
+msgid "Add user"
+msgstr ""
+
+#: ui/new_user.slint:14
+msgctxt "NewUser"
+msgid "Enter the username to use and a password."
+msgstr ""
+
+#: ui/new_user.slint:18
+msgctxt "NewUser"
+msgid "Username"
+msgstr ""
+
+#: ui/new_user.slint:21
+msgctxt "NewUser"
+msgid "Password"
 msgstr ""
 
 #: ui/pages/home_page.slint:16
@@ -57,92 +77,97 @@ msgctxt "HomePage"
 msgid "Home"
 msgstr ""
 
-#: ui/pages/home_page.slint:20
+#: ui/pages/home_page.slint:25
 msgctxt "HomePage"
 msgid "Player"
 msgstr ""
 
-#: ui/pages/home_page.slint:26
+#: ui/pages/home_page.slint:34
+msgctxt "HomePage"
+msgid "Password"
+msgstr ""
+
+#: ui/pages/home_page.slint:38
 msgctxt "HomePage"
 msgid "+"
 msgstr ""
 
-#: ui/pages/home_page.slint:28
+#: ui/pages/home_page.slint:41
 msgctxt "HomePage"
 msgid "Add player"
 msgstr ""
 
-#: ui/pages/home_page.slint:32
+#: ui/pages/home_page.slint:45
 msgctxt "HomePage"
 msgid "-"
 msgstr ""
 
-#: ui/pages/home_page.slint:34
+#: ui/pages/home_page.slint:48
 msgctxt "HomePage"
 msgid "Remove player"
 msgstr ""
 
-#: ui/pages/home_page.slint:41
+#: ui/pages/home_page.slint:55
 msgctxt "HomePage"
 msgid "Resolution"
 msgstr ""
 
-#: ui/pages/home_page.slint:64
+#: ui/pages/home_page.slint:78
 msgctxt "HomePage"
 msgid "Fullscreen"
 msgstr ""
 
-#: ui/pages/home_page.slint:64
+#: ui/pages/home_page.slint:78
 msgctxt "HomePage"
 msgid "Windowed"
 msgstr ""
 
-#: ui/pages/home_page.slint:64
+#: ui/pages/home_page.slint:78
 msgctxt "HomePage"
 msgid "Borderless Fullscreen"
 msgstr ""
 
-#: ui/pages/home_page.slint:72
+#: ui/pages/home_page.slint:86
 msgctxt "HomePage"
 msgid "LR2 path"
 msgstr ""
 
-#: ui/pages/home_page.slint:79
+#: ui/pages/home_page.slint:93
 msgctxt "HomePage"
 msgid "Set LR2 Path"
 msgstr ""
 
-#: ui/pages/home_page.slint:85
+#: ui/pages/home_page.slint:100
 msgctxt "HomePage"
 msgid "Misc"
 msgstr ""
 
-#: ui/pages/home_page.slint:89
+#: ui/pages/home_page.slint:104
 msgctxt "HomePage"
 msgid "Disable score saving"
 msgstr ""
 
-#: ui/pages/home_page.slint:93
+#: ui/pages/home_page.slint:108
 msgctxt "HomePage"
 msgid "Enable song preview"
 msgstr ""
 
-#: ui/pages/home_page.slint:101
+#: ui/pages/home_page.slint:116
 msgctxt "HomePage"
 msgid "Database reload type"
 msgstr ""
 
-#: ui/pages/home_page.slint:105
+#: ui/pages/home_page.slint:120
 msgctxt "HomePage"
 msgid "Manual"
 msgstr ""
 
-#: ui/pages/home_page.slint:105
+#: ui/pages/home_page.slint:120
 msgctxt "HomePage"
 msgid "Auto Type 1"
 msgstr ""
 
-#: ui/pages/home_page.slint:105
+#: ui/pages/home_page.slint:120
 msgctxt "HomePage"
 msgid "Auto Type 2"
 msgstr ""

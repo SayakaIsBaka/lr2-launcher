@@ -67,10 +67,14 @@ pub fn load_openlr2_config(app_globals: &ApplicationGlobal, lr2_path: &PathBuf) 
 
     let config = openlr2_config::Config::load(&lr2_folder_path).unwrap_or_default();
     let customirs = list_available_customirs(&lr2_folder_path).unwrap_or_default();
-
+    
     app_globals.set_resolution(config.system.resolution.into());
     app_globals.set_gaugeautoshift(config.play.gaugeautoshift);
-    app_globals.set_customirs(ModelRc::from(Rc::new(VecModel::from(customirs))));
+    app_globals.set_customirs(ModelRc::from(Rc::new(VecModel::from(customirs.clone()))));
+    match customirs.iter().position(|x| x.as_str() == config.network.display_ir) {
+        Some(idx) => app_globals.set_selectedir_index(i32::try_from(idx).unwrap()),
+        None => {}
+    };
     app_globals.set_display_ir(config.network.display_ir.clone().into());
 
     Ok(config)

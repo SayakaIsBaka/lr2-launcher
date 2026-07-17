@@ -7,6 +7,7 @@ import {
 import { SideBar } from "side_bar.slint";
 import { Button, ComboBox, Palette, VerticalBox, HorizontalBox } from "std-widgets.slint";
 import { ApplicationGlobal } from "globals.slint";
+import { OpenLR2Page } from "pages/openlr2_page.slint";
 
 export { Palette, ColorScheme }
 export { ApplicationGlobal }
@@ -37,7 +38,8 @@ export component App inherits Window {
                 @tr("Menu" => "Home"),
                 @tr("Menu" => "Jukebox"),
                 @tr("Menu" => "Play options"),
-                @tr("Menu" => "System options")
+                @tr("Menu" => "System options"),
+                @tr("Menu" => "OpenLR2 options")
             ];
             Button {
                 text: @tr("Start game");
@@ -67,6 +69,7 @@ export component App inherits Window {
             }
             if(side-bar.current-item == 2): PlayOptionsPage { }
             if(side-bar.current-item == 3): SystemOptionsPage { audio_type_change => {root.audio_type_change();} }
+            if(side-bar.current-item == 4): OpenLR2Page { }
         }
     }
 

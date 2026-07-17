@@ -1,0 +1,56 @@
+import {
+    GroupBox,
+    ComboBox,
+    Switch,
+} from "std-widgets.slint";
+
+import { Page } from "page.slint";
+import { ApplicationGlobal } from "../globals.slint";
+
+export component OpenLR2Page inherits Page {
+    title: @tr("OpenLR2 options");
+    alignment: start;
+
+    GroupBox {
+        title: @tr("System");
+
+        HorizontalLayout {
+            alignment: start;
+            spacing: 10px;
+            Text {
+                vertical-alignment: center;
+                text: @tr("Default skin resolution type");
+            }
+            ComboBox {
+                model: [@tr("SD"), @tr("HD"), @tr("FHD")];
+                current-index <=> ApplicationGlobal.resolution;
+            }
+        }
+    }
+
+    GroupBox {
+        title: @tr("Play");
+
+        Switch {
+            text: @tr("Gauge Auto Shift");
+            checked <=> ApplicationGlobal.gaugeautoshift;
+        }
+    }
+
+    GroupBox {
+        title: @tr("Network");
+
+        HorizontalLayout {
+            alignment: start;
+            spacing: 10px;
+            Text {
+                vertical-alignment: center;
+                text: @tr("Display IR");
+            }
+            ComboBox {
+                model: ApplicationGlobal.customirs;
+                current-value <=> ApplicationGlobal.display_ir;
+            }
+        }
+    }
+}

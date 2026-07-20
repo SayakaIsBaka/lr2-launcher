@@ -18,6 +18,7 @@ pub struct Config {
 pub struct System {
     pub resolution: u8,
     pub fullscreenfilter: u8,
+    pub screenmode: u8,
     #[serde_as(as = "BoolFromInt")] pub fullscreenfitstretch: bool,
 }
 

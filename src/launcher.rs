@@ -1,8 +1,10 @@
-use std::{env::current_exe};
+use std::{env::current_exe, fs, path::PathBuf};
+use bstr::ByteSlice;
 use slint::{ComponentHandle, language::ColorScheme};
 use crate::{App, ApplicationGlobal, Palette, lr2::{self, lr2_config}, openlr2::{self, openlr2_config}};
 
 pub mod config;
+pub mod binary_type;
 
 fn set_launcher_initial_values(app_globals: &ApplicationGlobal, launcher_config: &config::Config) {
     app_globals.set_lr2_path(launcher_config.lr2_path.clone().into_os_string().into_string().unwrap().into());
@@ -10,6 +12,36 @@ fn set_launcher_initial_values(app_globals: &ApplicationGlobal, launcher_config:
     app_globals.set_darkmode(launcher_config.dark_mode);
     app_globals.set_language(launcher_config.language.clone() as i32);
     //TODO: actually set the application language to the selected one here
+}
+
+fn get_binary_type(path: &PathBuf) -> binary_type::Game {
+    struct SearchArgs<'a> {
+        typ: binary_type::Type,
+        search_string: &'a str
+    }
+
+    static SEARCH_ARGS: [SearchArgs; 2] = [
+        SearchArgs { typ: binary_type::Type::LR2, search_string: "LR2 beta3 version " },
+        SearchArgs { typ: binary_type::Type::OpenLR2, search_string: "OpenLR2 version " },
+    ];
+    static VERSION_LEN: usize = 6;
+
+    let mut game = binary_type::Game { typ: binary_type::Type::Unknown, version: "".into() };
+    let binary = fs::read(path).unwrap();
+
+    for arg in SEARCH_ARGS.iter() {
+        match binary.find(arg.search_string) {
+            Some(idx) => {
+                let ver = binary[idx + arg.search_string.len()..idx + arg.search_string.len() + VERSION_LEN].to_str().unwrap();
+                game.version = ver.into();
+                game.typ = arg.typ;
+                break
+            }
+            None => {}
+        }
+    }
+
+    game
 }
 
 pub fn init_launcher(app: &App) -> (lr2_config::Config, config::Config, openlr2_config::Config) {
@@ -35,6 +67,8 @@ pub fn init_launcher(app: &App) -> (lr2_config::Config, config::Config, openlr2_
                 None => panic!("No LR2 executable path given, exiting")
             };
     }
+
+    let bin_type = get_binary_type(&launcher_config.lr2_path);
 
     set_launcher_initial_values(&app_globals, &launcher_config);
     let config = lr2::load_lr2_config(&app_globals, &launcher_config.lr2_path).unwrap();

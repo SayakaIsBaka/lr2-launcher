@@ -68,6 +68,7 @@ pub fn load_openlr2_config(app_globals: &ApplicationGlobal, lr2_path: &PathBuf) 
     let config = openlr2_config::Config::load(&lr2_folder_path).unwrap_or_default();
     let customirs = list_available_customirs(&lr2_folder_path).unwrap_or_default();
     
+    // TODO: load screenmode from OpenLR2 config here if binary is OpenLR2
     app_globals.set_resolution(config.system.resolution.into());
     app_globals.set_fullscreenfilter(config.system.fullscreenfilter.into());
     app_globals.set_fullscreenfitstretch(config.system.fullscreenfitstretch);
@@ -85,6 +86,7 @@ pub fn load_openlr2_config(app_globals: &ApplicationGlobal, lr2_path: &PathBuf) 
 pub fn save_new_openlr2_config(app_globals: &ApplicationGlobal, config: &Mutex<openlr2_config::Config>) {
     let mut config_new = config.lock().unwrap();
 
+    // TODO: save screenmode to OpenLR2 config here if binary is OpenLR2
     config_new.system.resolution = u8::try_from(app_globals.get_resolution()).unwrap();
     config_new.system.fullscreenfilter = u8::try_from(app_globals.get_fullscreenfilter()).unwrap();
     config_new.system.fullscreenfitstretch = app_globals.get_fullscreenfitstretch();

@@ -76,7 +76,7 @@ pub fn load_lr2_config(app_globals: &ApplicationGlobal, lr2_path: &PathBuf) -> R
     }
     app_globals.set_window_x(config.system.windowsize_x);
     app_globals.set_window_y(config.system.windowsize_y);
-    app_globals.set_screenmode(config.system.screenmode.into());
+    app_globals.set_screenmode(config.system.screenmode.into()); // TODO: only load here if binary is vanilla LR2
     app_globals.set_autoreload(config.system.autoreload.into());
     app_globals.set_preview(config.select.preview);
 
@@ -126,7 +126,7 @@ pub fn save_new_lr2_config(app_globals: &ApplicationGlobal, config: &Mutex<lr2_c
     config_new.player.pass = app_globals.get_password().into();
     config_new.system.windowsize_x = app_globals.get_window_x();
     config_new.system.windowsize_y = app_globals.get_window_y();
-    config_new.system.screenmode = u8::try_from(app_globals.get_screenmode()).unwrap();
+    config_new.system.screenmode = u8::try_from(app_globals.get_screenmode()).unwrap(); // TODO: only save here if binary is vanilla LR2
     config_new.system.autoreload = u8::try_from(app_globals.get_autoreload()).unwrap();
     config_new.select.preview = app_globals.get_preview();
 

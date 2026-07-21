@@ -18,6 +18,7 @@ slint::include_modules!();
 
 pub fn main() {
     slint::init_translations!(concat!(env!("CARGO_MANIFEST_DIR"), "/lang/"));
+    nyquest_preset::register();
 
     let app = App::new().unwrap();
     let (config, launcher_config, openlr2_config) = launcher::init_launcher(&app);

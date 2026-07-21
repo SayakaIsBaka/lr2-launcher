@@ -6,6 +6,7 @@ use walkdir::WalkDir;
 use crate::{ApplicationGlobal, GameType};
 
 pub mod openlr2_config;
+pub mod update;
 
 #[repr(C)]
 struct MethodTable {

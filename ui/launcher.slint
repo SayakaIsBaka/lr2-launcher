@@ -6,7 +6,7 @@ import {
 } from "pages/pages.slint";
 import { SideBar } from "side_bar.slint";
 import { Button, ComboBox, Palette, VerticalBox, HorizontalBox } from "std-widgets.slint";
-import { ApplicationGlobal } from "globals.slint";
+import { ApplicationGlobal, GameType } from "globals.slint";
 import { OpenLR2Page } from "pages/openlr2_page.slint";
 
 export { Palette, ColorScheme }
@@ -34,13 +34,24 @@ export component App inherits Window {
             accessible-role: navigation;
             accessible-label: @tr("Sidebar");
             title: @tr("LR2 launcher");
-            model: [
-                @tr("Menu" => "Home"),
-                @tr("Menu" => "Jukebox"),
-                @tr("Menu" => "Play options"),
-                @tr("Menu" => "System options"),
-                @tr("Menu" => "OpenLR2 options")
-            ];
+            model: {
+                if (ApplicationGlobal.gametype == GameType.OpenLR2) {
+                    [
+                        @tr("Menu" => "Home"),
+                        @tr("Menu" => "Jukebox"),
+                        @tr("Menu" => "Play options"),
+                        @tr("Menu" => "System options"),
+                        @tr("Menu" => "OpenLR2 options")
+                    ]
+                } else {
+                    [
+                        @tr("Menu" => "Home"),
+                        @tr("Menu" => "Jukebox"),
+                        @tr("Menu" => "Play options"),
+                        @tr("Menu" => "System options")
+                    ]
+                }
+            };
             Button {
                 text: @tr("Start game");
                 primary: true;
@@ -69,7 +80,7 @@ export component App inherits Window {
             }
             if(side-bar.current-item == 2): PlayOptionsPage { }
             if(side-bar.current-item == 3): SystemOptionsPage { audio_type_change => {root.audio_type_change();} }
-            if(side-bar.current-item == 4): OpenLR2Page { }
+            if(side-bar.current-item == 4 && ApplicationGlobal.gametype == GameType.OpenLR2): OpenLR2Page { }
         }
     }
 

@@ -79,7 +79,9 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
             } else {
                 lr2::save_new_lr2_config(&app_globals, &config_clone);
                 launcher::config::save_new_launcher_config(&app_globals, &launcher_config_clone);
-                openlr2::save_new_openlr2_config(&app_globals, &openlr2_config_clone);
+                if app_globals.get_gametype() == GameType::OpenLR2 {
+                    openlr2::save_new_openlr2_config(&app_globals, &openlr2_config_clone);
+                }
                 process::launch_game(&lr2_path, app_globals.get_disable_score_save());
 
                 app.hide().unwrap();
@@ -201,6 +203,10 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
                 };
             
             app_globals.set_lr2_path(new_lr2_path.clone().into_os_string().into_string().unwrap().into());
+            let game_type = launcher::get_binary_type(&new_lr2_path);
+            app_globals.set_gametype(game_type.typ);
+            app_globals.set_gameversion(game_type.version.clone().into());
+
             let config_new = lr2::load_lr2_config(&app_globals, &new_lr2_path).unwrap();
             let openlr2_config_new = openlr2::load_openlr2_config(&app_globals, &new_lr2_path).unwrap();
 
@@ -223,7 +229,9 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
             let app_globals = app.global::<ApplicationGlobal>();
 
             lr2::save_new_lr2_config(&app_globals, &config_clone);
-            openlr2::save_new_openlr2_config(&app_globals, &openlr2_config_clone);
+            if app_globals.get_gametype() == GameType::OpenLR2 {
+                openlr2::save_new_openlr2_config(&app_globals, &openlr2_config_clone);
+            }
             launcher::config::save_new_launcher_config(&app_globals, &launcher_config_clone);
             
             CloseRequestResponse::HideWindow

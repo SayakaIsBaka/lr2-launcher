@@ -1,5 +1,9 @@
 import { Palette } from "std-widgets.slint";
 
+export enum GameType {
+    Unknown, LR2, OpenLR2
+}
+
 export global ApplicationGlobal {
     out property <string> window_title: "LR2 launcher";
 
@@ -59,4 +63,6 @@ export global ApplicationGlobal {
     // Launcher settings
     in-out property <bool> darkmode;
     in-out property <int> language;
+    in property <GameType> gametype;
+    in property <string> gameversion;
 }

@@ -161,7 +161,7 @@ export component HomePage inherits Page {
                             running: false;
                             triggered() => {
                                 self.running = false;
-                                parent.text = @markdown("*[\{@tr("Check for updates...")}]()*");
+                                parent.text = @markdown("*[\{@tr("Check for updates...")}](update-check)*");
                             }
                         }
                     }

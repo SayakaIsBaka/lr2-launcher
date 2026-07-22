@@ -1,5 +1,6 @@
 use std::{env::current_exe, fs, path::PathBuf};
 use bstr::ByteSlice;
+use anyhow::{Result, bail};
 use slint::{ComponentHandle, language::ColorScheme};
 use crate::{App, ApplicationGlobal, GameType, Palette, lr2::{self, lr2_config}, openlr2::{self, openlr2_config}};
 
@@ -7,6 +8,7 @@ pub mod config;
 
 pub struct Game {
     pub typ: GameType,
+    pub is_64bit: bool,
     pub version: String
 }
 
@@ -19,6 +21,37 @@ fn set_launcher_initial_values(app_globals: &ApplicationGlobal, launcher_config:
 
     app_globals.set_gametype(game_type.typ);
     app_globals.set_gameversion(game_type.version.clone().into());
+    app_globals.set_is64bit(game_type.is_64bit);
+}
+
+fn is_binary_64bit(binary: &Vec<u8>) -> Result<bool> {
+    #[cfg(target_os = "windows")]
+    {
+        let pe_offset: usize = u32::from_le_bytes(binary[0x3c..0x3c+4].try_into().unwrap()).try_into().unwrap();
+        let sig = &binary[pe_offset..pe_offset+6];
+        if sig == [0x50, 0x45, 0x00, 0x00, 0x4c, 0x01] { // PE header 32bit
+            return Ok(false);
+        } else if sig == [0x50, 0x45, 0x00, 0x00, 0x64, 0x86] { // PE header 64bit
+            return Ok(true);
+        }
+        bail!("Binary is not a valid PE file");
+    }
+
+    #[cfg(target_os = "linux")]
+    {
+        if binary.starts_with_str("\x7fELF\x01") {
+            return Ok(false);
+        } else if binary.starts_with_str("\x7fELF\x02") {
+            return Ok(true);
+        } else {
+            bail!("Binary is not a valid ELF file");
+        }
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        bail!("Unimplemented"); // cba to handle fat binaries and everything
+    }
 }
 
 pub fn get_binary_type(path: &PathBuf) -> Game {
@@ -33,8 +66,12 @@ pub fn get_binary_type(path: &PathBuf) -> Game {
     ];
     static VERSION_LEN: usize = 6;
 
-    let mut game = Game { typ: GameType::Unknown, version: "".into() };
     let binary = fs::read(path).unwrap();
+    let mut game = Game {
+        typ: GameType::Unknown,
+        is_64bit: is_binary_64bit(&binary).unwrap(),
+        version: "".into()
+    };
 
     for arg in SEARCH_ARGS.iter() {
         match binary.find(arg.search_string) {

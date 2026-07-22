@@ -121,7 +121,7 @@ export component HomePage inherits Page {
                         if (ApplicationGlobal.gametype == GameType.LR2) {
                             return @markdown("*__<u>\{@tr("Loaded binary")}:</u>__ LR2 version \{ApplicationGlobal.gameversion}*");
                         } else if (ApplicationGlobal.gametype == GameType.OpenLR2) {
-                            return @markdown("*__<u>\{@tr("Loaded binary")}:</u>__ OpenLR2 version \{ApplicationGlobal.gameversion}*");
+                            return @markdown("*__<u>\{@tr("Loaded binary")}:</u>__ OpenLR2 version \{ApplicationGlobal.gameversion} (\{ApplicationGlobal.is64bit ? "x64" : "x86"})*");
                         }
                         return @markdown("*\{@tr("Unknown binary loaded, proceed with caution!")}*");
                     };

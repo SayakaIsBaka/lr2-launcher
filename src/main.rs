@@ -207,6 +207,7 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
             let game_type = launcher::get_binary_type(&new_lr2_path);
             app_globals.set_gametype(game_type.typ);
             app_globals.set_gameversion(game_type.version.clone().into());
+            app_globals.set_is64bit(game_type.is_64bit);
 
             let config_new = lr2::load_lr2_config(&app_globals, &new_lr2_path).unwrap();
             let openlr2_config_new = openlr2::load_openlr2_config(&app_globals, &new_lr2_path).unwrap();

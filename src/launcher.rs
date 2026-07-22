@@ -1,4 +1,4 @@
-use std::{env::current_exe, fs, path::PathBuf};
+use std::{env::current_exe, fs, path::PathBuf, sync::{Arc, Mutex}};
 use bstr::ByteSlice;
 use anyhow::{Result, bail};
 use slint::{ComponentHandle, language::ColorScheme};
@@ -54,7 +54,7 @@ fn is_binary_64bit(binary: &Vec<u8>) -> Result<bool> {
     }
 }
 
-pub fn get_binary_type(path: &PathBuf) -> Game {
+fn get_binary_type(path: &PathBuf) -> Game {
     struct SearchArgs<'a> {
         typ: GameType,
         search_string: &'a str
@@ -86,6 +86,22 @@ pub fn get_binary_type(path: &PathBuf) -> Game {
     }
 
     game
+}
+
+pub fn refresh_game_config(app_globals: &ApplicationGlobal, game_path: &PathBuf, config: &Arc<Mutex<lr2_config::Config>>, openlr2_config: &Arc<Mutex<openlr2_config::Config>>) {
+    let game_type = get_binary_type(game_path);
+    app_globals.set_gametype(game_type.typ);
+    app_globals.set_gameversion(game_type.version.clone().into());
+    app_globals.set_is64bit(game_type.is_64bit);
+
+    let config_new = lr2::load_lr2_config(&app_globals, game_path).unwrap();
+    let openlr2_config_new = openlr2::load_openlr2_config(&app_globals, game_path).unwrap();
+
+    let mut config_ref = config.lock().unwrap();
+    *config_ref = config_new;
+
+    let mut openlr2_config_ref = openlr2_config.lock().unwrap();
+    *openlr2_config_ref = openlr2_config_new;
 }
 
 pub fn init_launcher(app: &App) -> (lr2_config::Config, config::Config, openlr2_config::Config) {

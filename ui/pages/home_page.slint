@@ -161,7 +161,14 @@ export component HomePage inherits Page {
                                     }
                                 }
                             } else if (link == "install-update") {
-                                root.install_openlr2_update(download-url);
+                                let success = root.install_openlr2_update(download-url);
+                                if (!success) {
+                                    self.text = @markdown("*\{@tr("An error occurred during update installation")}*");
+                                    reset_update_text.start();
+                                } else {
+                                    self.text = @markdown("*\{@tr("Update successful!")}*");
+                                    reset_update_text.start();
+                                }
                             } else {
                                 Platform.open-url(link);
                             }

@@ -35,7 +35,7 @@ pub fn check_updates(cur_version: String, is_64bit: bool) -> Result<Option<(Stri
     }
 }
 
-pub fn download_install_update(download_url: String, binary_path: PathBuf) -> Result<()> {
+pub fn download_install_update(download_url: String, binary_path: &PathBuf) -> Result<()> {
     let client = ClientBuilder::default().user_agent("curl/8.4.0").build_blocking()?;
     let zip_file = client.request(Request::get(download_url))?.bytes()?;
     let parent_folder = binary_path.parent().unwrap();

@@ -204,19 +204,7 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
                 };
             
             app_globals.set_lr2_path(new_lr2_path.clone().into_os_string().into_string().unwrap().into());
-            let game_type = launcher::get_binary_type(&new_lr2_path);
-            app_globals.set_gametype(game_type.typ);
-            app_globals.set_gameversion(game_type.version.clone().into());
-            app_globals.set_is64bit(game_type.is_64bit);
-
-            let config_new = lr2::load_lr2_config(&app_globals, &new_lr2_path).unwrap();
-            let openlr2_config_new = openlr2::load_openlr2_config(&app_globals, &new_lr2_path).unwrap();
-
-            let mut config_ref = config_clone.lock().unwrap();
-            *config_ref = config_new;
-
-            let mut openlr2_config_ref = openlr2_config_clone.lock().unwrap();
-            *openlr2_config_ref = openlr2_config_new;
+            launcher::refresh_game_config(&app_globals, &new_lr2_path, &config_clone, &openlr2_config_clone);
         }
     });
 
@@ -239,12 +227,17 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
 
     app.on_install_openlr2_update({
         let app_weak = app.as_weak();
+        let config_clone = config.clone();
+        let openlr2_config_clone = openlr2_config.clone();
 
         move |download_url| {
             let app = app_weak.unwrap();
             let app_globals = app.global::<ApplicationGlobal>();
+            let lr2_path = PathBuf::from(app_globals.get_lr2_path().to_string());
             
-            let status = openlr2::update::download_install_update(download_url.to_string(), PathBuf::from(app_globals.get_lr2_path().to_string()));
+            let status = openlr2::update::download_install_update(download_url.to_string(), &lr2_path);
+            launcher::refresh_game_config(&app_globals, &lr2_path, &config_clone, &openlr2_config_clone);
+            
             status.is_ok()
         }
     });

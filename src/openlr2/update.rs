@@ -1,3 +1,4 @@
+use std::{fs, io::{self, Cursor}, path::PathBuf};
 use anyhow::{Result, bail};
 use nyquest::{ClientBuilder, Request};
 use serde_json::Value;
@@ -32,4 +33,39 @@ pub fn check_updates(cur_version: String, is_64bit: bool) -> Result<Option<(Stri
     } else {
         Ok(None)
     }
+}
+
+pub fn download_install_update(download_url: String, binary_path: PathBuf) -> Result<()> {
+    let client = ClientBuilder::default().user_agent("curl/8.4.0").build_blocking()?;
+    let zip_file = client.request(Request::get(download_url))?.bytes()?;
+    let parent_folder = binary_path.parent().unwrap();
+
+    let mut archive = zip::ZipArchive::new(Cursor::new(zip_file))?;
+    for i in 0..archive.len() {
+        let mut file = archive.by_index(i)?;
+        let mut out_path = file.enclosed_name().unwrap();
+        if file.is_dir() {
+            fs::create_dir_all(parent_folder.join(out_path))?;
+        } else {
+            // If current file is the OpenLR2 binary
+            if let Some(p) = out_path.file_name()
+                && p.to_string_lossy().starts_with("OpenLR2_")
+                && let Some(e) = out_path.extension()
+                && e == "exe" {
+                    out_path = binary_path.clone();
+                }
+            else {
+                out_path = parent_folder.join(out_path);
+            }
+
+            if let Some(p) = out_path.parent() && !p.exists() {
+                fs::create_dir_all(parent_folder.join(p))?;
+            }
+
+            let mut out_file = fs::File::create(&out_path)?;
+            io::copy(&mut file, &mut out_file)?;
+        }
+    }
+
+    Ok(())
 }

@@ -241,7 +241,11 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
         let app_weak = app.as_weak();
 
         move |download_url| {
-            true
+            let app = app_weak.unwrap();
+            let app_globals = app.global::<ApplicationGlobal>();
+            
+            let status = openlr2::update::download_install_update(download_url.to_string(), PathBuf::from(app_globals.get_lr2_path().to_string()));
+            status.is_ok()
         }
     });
 

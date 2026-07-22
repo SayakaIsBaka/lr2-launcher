@@ -219,6 +219,23 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
         }
     });
 
+    app.on_check_for_openlr2_updates({
+        move |current_version| {
+            let res = match openlr2::update::check_updates(current_version.to_string()) {
+                Ok(v) => v,
+                Err(e) => return UpdateCheckResult { status: UpdateCheckStatus::Error, message: e.to_string().into() }
+            };
+            match res {
+                Some(ver) => {
+                    UpdateCheckResult { message: ver.into(), status: UpdateCheckStatus::UpdateAvailable }
+                }
+                None => {
+                    UpdateCheckResult { message: "".into(), status: UpdateCheckStatus::NoUpdate }
+                }
+            }
+        }
+    });
+
     app.window().on_close_requested({
         let app_weak = app.as_weak();
         let config_clone = config.clone();

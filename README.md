@@ -13,7 +13,6 @@ It is **HIGHLY** recommended you perform a backup of your LR2 and OpenLR2 config
 - Disable score save switch does not actually work (the `-ns` argument only works when a chart is directly loaded apparently)
 - CustomIR disabling
 - File / folder drag and drop support (waiting for Slint to support it which should hopefully be [soon](https://github.com/slint-ui/slint/issues/1967))
-- OpenLR2 update check? (I have no idea how to implement that)
 - Other things probably (obscure LR2 options / features no one uses for example)
 
 # Credits

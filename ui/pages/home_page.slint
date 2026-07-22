@@ -12,6 +12,17 @@ import { IntEdit } from "../components/int_edit.slint";
 import { Page } from "page.slint";
 import { ApplicationGlobal, GameType } from "../globals.slint";
 
+export enum UpdateCheckStatus {
+    Error,
+    UpdateAvailable,
+    NoUpdate
+}
+
+export struct UpdateCheckResult {
+    status: UpdateCheckStatus,
+    message: string
+}
+
 export component HomePage inherits Page {
     title: @tr("Home");
     alignment: start;
@@ -20,6 +31,7 @@ export component HomePage inherits Page {
     callback show_new_player_window();
     callback player_change(current-player: string);
     callback delete_player(player: string);
+    callback check_for_openlr2_updates(current-version: string) -> UpdateCheckResult;
 
     GroupBox {
         title: @tr("Player");
@@ -101,16 +113,59 @@ export component HomePage inherits Page {
                     clicked => { root.set_lr2_path() }
                 }
             }
-            StyledText {
-                default-font-size: 0.8rem;
-                text: {
-                    if (ApplicationGlobal.gametype == GameType.LR2) {
-                        return @markdown("*__<u>\{@tr("Loaded binary")}:</u>__ LR2 version \{ApplicationGlobal.gameversion}*");
-                    } else if (ApplicationGlobal.gametype == GameType.OpenLR2) {
-                        return @markdown("*__<u>\{@tr("Loaded binary")}:</u>__ OpenLR2 version \{ApplicationGlobal.gameversion}*");
+            HorizontalLayout {
+                alignment: start;
+                StyledText {
+                    default-font-size: 0.8rem;
+                    text: {
+                        if (ApplicationGlobal.gametype == GameType.LR2) {
+                            return @markdown("*__<u>\{@tr("Loaded binary")}:</u>__ LR2 version \{ApplicationGlobal.gameversion}*");
+                        } else if (ApplicationGlobal.gametype == GameType.OpenLR2) {
+                            return @markdown("*__<u>\{@tr("Loaded binary")}:</u>__ OpenLR2 version \{ApplicationGlobal.gameversion}*");
+                        }
+                        return @markdown("*\{@tr("Unknown binary loaded, proceed with caution!")}*");
+                    };
+                }
+
+                if (ApplicationGlobal.gametype == GameType.OpenLR2): HorizontalLayout {
+                    // Separator
+                    Text {
+                        font-size: 0.8rem;
+                        text: " | ";
                     }
-                    return @markdown("*\{@tr("Unknown binary loaded, proceed with caution!")}*");
-                };
+
+                    StyledText {
+                        default-font-size: 0.8rem;
+                        text: @markdown("*[\{@tr("Check for updates...")}](update-check)*");
+                        link-clicked(link) => {
+                            if (link == "update-check") {
+                                let res = root.check_for_openlr2_updates(ApplicationGlobal.gameversion);
+                                if (res.status == UpdateCheckStatus.Error) {
+                                    self.text = @markdown("*\{@tr("An error occurred")}: \{res.message}*");
+                                    reset_update_text.start();
+                                }
+                                else if (res.status == UpdateCheckStatus.NoUpdate) {
+                                    self.text = @markdown("*\{@tr("No updates available")}*");
+                                    reset_update_text.start();
+                                }
+                                else if (res.status == UpdateCheckStatus.UpdateAvailable) {
+                                    self.text = @markdown("*\{@tr("Update available")}: [\{res.message}](https://github.com/GOMazk/OpenLR2/releases/tag/\{res.message})*");
+                                }
+                            } else {
+                                Platform.open-url(link);
+                            }
+                        };
+
+                        reset_update_text := Timer {
+                            interval: 8s;
+                            running: false;
+                            triggered() => {
+                                self.running = false;
+                                parent.text = @markdown("*[\{@tr("Check for updates...")}]()*");
+                            }
+                        }
+                    }
+                }
             }
         }
     }

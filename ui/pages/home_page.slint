@@ -20,7 +20,8 @@ export enum UpdateCheckStatus {
 
 export struct UpdateCheckResult {
     status: UpdateCheckStatus,
-    message: string
+    message: string,
+    url: string
 }
 
 export component HomePage inherits Page {
@@ -31,7 +32,8 @@ export component HomePage inherits Page {
     callback show_new_player_window();
     callback player_change(current-player: string);
     callback delete_player(player: string);
-    callback check_for_openlr2_updates(current-version: string) -> UpdateCheckResult;
+    callback check_for_openlr2_updates(current-version: string, is-64bit: bool) -> UpdateCheckResult;
+    callback install_openlr2_update(download-link: string) -> bool;
 
     GroupBox {
         title: @tr("Player");
@@ -137,9 +139,11 @@ export component HomePage inherits Page {
                     StyledText {
                         default-font-size: 0.8rem;
                         text: @markdown("*[\{@tr("Check for updates...")}](update-check)*");
+                        property <string> download-url;
+
                         link-clicked(link) => {
                             if (link == "update-check") {
-                                let res = root.check_for_openlr2_updates(ApplicationGlobal.gameversion);
+                                let res = root.check_for_openlr2_updates(ApplicationGlobal.gameversion, ApplicationGlobal.is64bit);
                                 if (res.status == UpdateCheckStatus.Error) {
                                     self.text = @markdown("*\{@tr("An error occurred")}: \{res.message}*");
                                     reset_update_text.start();
@@ -149,8 +153,15 @@ export component HomePage inherits Page {
                                     reset_update_text.start();
                                 }
                                 else if (res.status == UpdateCheckStatus.UpdateAvailable) {
-                                    self.text = @markdown("*\{@tr("Update available")}: [\{res.message}](https://github.com/GOMazk/OpenLR2/releases/tag/\{res.message})*");
+                                    if (!res.url.is-empty) {
+                                        self.text = @markdown("*\{@tr("Update available")}: [\{res.message}](https://github.com/GOMazk/OpenLR2/releases/tag/\{res.message})* | *[\{@tr("Click here to install")}...](install-update)*");
+                                        download-url = res.url;
+                                    } else {
+                                        self.text = @markdown("*\{@tr("Update available")}: [\{res.message}](https://github.com/GOMazk/OpenLR2/releases/tag/\{res.message})*");
+                                    }
                                 }
+                            } else if (link == "install-update") {
+                                root.install_openlr2_update(download-url);
                             } else {
                                 Platform.open-url(link);
                             }

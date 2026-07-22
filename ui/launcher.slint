@@ -29,7 +29,8 @@ export component App inherits Window {
     callback player_change(current-player: string);
     callback delete_player(player: string);
     callback launch_game();
-    callback check_for_openlr2_updates(current-version: string) -> UpdateCheckResult;
+    callback check_for_openlr2_updates(current-version: string, is-64bit: bool) -> UpdateCheckResult;
+    callback install_openlr2_update(download-link: string) -> bool;
 
     HorizontalLayout {
         side-bar := SideBar {
@@ -75,7 +76,8 @@ export component App inherits Window {
                 show_new_player_window => {root.show_new_player_window()};
                 player_change(current-player) => {root.player_change(current-player)};
                 delete_player(player) => {root.delete_player(player)};
-                check_for_openlr2_updates(current-version) => {root.check_for_openlr2_updates(current-version)};
+                check_for_openlr2_updates(current-version, is-64bit) => {root.check_for_openlr2_updates(current-version, is-64bit)};
+                install_openlr2_update(download-link) => {root.install_openlr2_update(download-link)};
             }
             if(side-bar.current-item == 1): JukeboxPage { 
                 jukebox_add => {root.jukebox_add()};

@@ -221,19 +221,27 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
     });
 
     app.on_check_for_openlr2_updates({
-        move |current_version| {
-            let res = match openlr2::update::check_updates(current_version.to_string()) {
+        move |current_version, is_64bit| {
+            let res = match openlr2::update::check_updates(current_version.to_string(), is_64bit) {
                 Ok(v) => v,
-                Err(e) => return UpdateCheckResult { status: UpdateCheckStatus::Error, message: e.to_string().into() }
+                Err(e) => return UpdateCheckResult { status: UpdateCheckStatus::Error, message: e.to_string().into(), url: "".into() }
             };
             match res {
                 Some(ver) => {
-                    UpdateCheckResult { message: ver.into(), status: UpdateCheckStatus::UpdateAvailable }
+                    UpdateCheckResult { message: ver.0.into(), status: UpdateCheckStatus::UpdateAvailable, url: ver.1.unwrap_or_default().into() }
                 }
                 None => {
-                    UpdateCheckResult { message: "".into(), status: UpdateCheckStatus::NoUpdate }
+                    UpdateCheckResult { message: "".into(), status: UpdateCheckStatus::NoUpdate, url: "".into() }
                 }
             }
+        }
+    });
+
+    app.on_install_openlr2_update({
+        let app_weak = app.as_weak();
+
+        move |download_url| {
+            true
         }
     });
 

@@ -34,7 +34,7 @@ fn get_customir_name(module_path: &Path) -> Result<String> {
 
 fn list_available_customirs(lr2_folder_path: &PathBuf) -> Result<Vec<SharedString>> {
     let mut customirs: Vec<SharedString> = vec![];
-    let customirs_folder = lr2_folder_path.join("LR2files\\CustomIRs");
+    let customirs_folder = lr2_folder_path.join("LR2files").join("CustomIRs");
 
     #[cfg(target_os = "windows")]
     static EXTENSION: &'static str = ".dll";

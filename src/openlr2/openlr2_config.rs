@@ -40,14 +40,14 @@ pub struct Network {
 
 impl Config {
     pub fn load(lr2_folder_path: &PathBuf) -> Result<Config> {
-        let config_file_path = lr2_folder_path.join("LR2files\\Config\\openlr2-config.xml");
+        let config_file_path = lr2_folder_path.join("LR2files").join("Config").join("openlr2-config.xml");
         let config_file = File::open(config_file_path)?;
         let config: Config = quick_xml::de::from_reader(BufReader::new(config_file))?;
         Ok(config)
     }
 
     pub fn write(&self, lr2_folder_path: &Path) -> Result<()> {
-        let config_path = lr2_folder_path.join("LR2files\\Config\\openlr2-config.xml");
+        let config_path = lr2_folder_path.join("LR2files").join("Config").join("openlr2-config.xml");
         let mut config_file = File::create(config_path)?;
 
         let mut buffer = String::from("<?xml version=\"1.0\" encoding=\"shift_jis\"?>\n");

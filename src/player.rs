@@ -52,7 +52,7 @@ pub fn show_new_player_window(app: &App) {
 }
 
 pub fn create_new_player(username: String, password: String, lr2_folder_path: &Path) -> Result<()> {
-    let mut player_db = lr2_folder_path.join("LR2files\\Database\\Score\\").join(&username);
+    let mut player_db = lr2_folder_path.join("LR2file").join("Database").join("Score").join(&username);
     player_db.add_extension("db");
     if player_db.exists() {
         bail!("User already exists!");
@@ -144,14 +144,14 @@ pub fn create_new_player(username: String, password: String, lr2_folder_path: &P
 }
 
 pub fn delete_player(username: String, lr2_folder_path: &Path) {
-    let mut player_db = lr2_folder_path.join("LR2files\\Database\\Score\\").join(&username);
+    let mut player_db = lr2_folder_path.join("LR2files").join("Database").join("Score").join(&username);
     player_db.add_extension("db");
 
     let _ = fs::remove_file(player_db);
 }
 
 pub fn are_credentials_valid(username: &String, password: &String, lr2_folder_path: &Path) -> Result<bool> {
-    let mut player_db = lr2_folder_path.join("LR2files\\Database\\Score\\").join(&username);
+    let mut player_db = lr2_folder_path.join("LR2files").join("Database").join("Score").join(&username);
     player_db.add_extension("db");
 
     let conn = Connection::open_with_flags(&player_db, OpenFlags::SQLITE_OPEN_READ_ONLY)?;

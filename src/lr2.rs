@@ -10,14 +10,14 @@ pub mod lr2_config;
 
 impl lr2_config::Config {
     pub fn load(lr2_folder_path: &PathBuf) -> Result<lr2_config::Config> {
-        let config_file_path = lr2_folder_path.join("LR2files\\Config\\config.xml");
+        let config_file_path = lr2_folder_path.join("LR2files").join("Config").join("config.xml");
         let config_file = File::open(config_file_path)?;
         let config: lr2_config::Config = quick_xml::de::from_reader(BufReader::new(config_file))?;
         Ok(config)
     }
 
     fn write(&self, lr2_folder_path: &Path) -> Result<()> {
-        let config_path = lr2_folder_path.join("LR2files\\Config\\config.xml");
+        let config_path = lr2_folder_path.join("LR2files").join("Config").join("config.xml");
         let mut config_file = File::create(config_path)?;
 
         let mut buffer = String::from("<?xml version=\"1.0\" encoding=\"shift_jis\"?>\n");
@@ -35,7 +35,7 @@ impl lr2_config::Config {
 }
 
 pub fn parse_players(lr2_folder_path: &PathBuf) -> Result<Vec<SharedString>> {
-    let score_folder = lr2_folder_path.join("LR2files\\Database\\Score");
+    let score_folder = lr2_folder_path.join("LR2files").join("Database").join("Score");
     let score_folder_exists = score_folder.try_exists().unwrap_or(false);
     if !score_folder_exists {
         bail!("Score folder does not exist");

@@ -52,7 +52,7 @@ pub fn show_new_player_window(app: &App) {
 }
 
 pub fn create_new_player(username: String, password: String, lr2_folder_path: &Path) -> Result<()> {
-    let mut player_db = lr2_folder_path.join("LR2file").join("Database").join("Score").join(&username);
+    let mut player_db = lr2_folder_path.join("LR2files").join("Database").join("Score").join(&username);
     player_db.add_extension("db");
     if player_db.exists() {
         bail!("User already exists!");

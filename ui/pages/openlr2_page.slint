@@ -3,6 +3,7 @@ import {
     ComboBox,
     Switch, GridBox,
 } from "std-widgets.slint";
+import { IntEdit } from "../components/int_edit.slint";
 
 import { Page } from "page.slint";
 import { ApplicationGlobal } from "../globals.slint";
@@ -52,6 +53,33 @@ export component OpenLR2Page inherits Page {
                 Switch {
                     text: @tr("Gauge Auto Shift");
                     checked <=> ApplicationGlobal.gaugeautoshift;
+                }
+            }
+            Row {
+                Switch {
+                    text: @tr("Generate new random on quick restart");
+                    checked <=> ApplicationGlobal.newrandomrestart;
+                    Tooltip {
+                        text: @markdown("\{@tr("This will generate a new random when doing a quick restart on the result screen by holding 2 + a white key")}");
+                    }
+                }
+            }
+            Text {}
+            Row {
+                Switch {
+                    text: @tr("Enable Lift");
+                    checked <=> ApplicationGlobal.lifttype;
+                }
+                IntEdit {
+                    min: 0;
+                    max: 100;
+                    enabled: ApplicationGlobal.lifttype;
+                    placeholder-text: @tr("Value (0-100)");
+                    max-width: 50px;
+                    value <=> ApplicationGlobal.lift;
+                    Tooltip {
+                        text: @markdown("\{@tr("Lift value (0-100)")}");
+                    }
                 }
             }
         }

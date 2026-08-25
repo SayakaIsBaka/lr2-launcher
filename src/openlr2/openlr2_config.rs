@@ -5,7 +5,7 @@ use quick_xml::se::EmptyElementHandling;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, BoolFromInt};
 
-#[derive(Serialize, Deserialize, Default)]
+#[derive(Serialize, Deserialize)]
 pub struct Config {
     pub system: System,
     pub play: Play,
@@ -18,14 +18,17 @@ pub struct Config {
 pub struct System {
     pub resolution: u8,
     pub fullscreenfilter: u8,
-    pub screenmode: u8,
     #[serde_as(as = "BoolFromInt")] pub fullscreenfitstretch: bool,
+    pub screenmode: u8,
 }
 
 #[serde_as]
 #[derive(Serialize, Deserialize, Default)]
 pub struct Play {
     #[serde_as(as = "BoolFromInt")] pub gaugeautoshift: bool,
+    #[serde_as(as = "BoolFromInt")] pub newrandomrestart: bool,
+    #[serde_as(as = "BoolFromInt")] pub lifttype: bool,
+    pub lift: u8,
 }
 
 #[derive(Serialize, Deserialize, Default)]
@@ -36,6 +39,20 @@ pub struct Skin {
 #[derive(Serialize, Deserialize, Default)]
 pub struct Network {
     pub display_ir: String,
+}
+
+impl Default for Config {
+    fn default() -> Config {
+        Config {
+            system: System::default(),
+            play: Play {
+                newrandomrestart: true,
+                ..Default::default()
+            },
+            skin: Skin::default(),
+            network: Network::default()
+        }
+    }
 }
 
 impl Config {

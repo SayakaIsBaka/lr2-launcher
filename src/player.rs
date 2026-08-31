@@ -155,8 +155,8 @@ pub fn are_credentials_valid(username: &String, password: &String, lr2_folder_pa
     player_db.add_extension("db");
 
     let conn = Connection::open_with_flags(&player_db, OpenFlags::SQLITE_OPEN_READ_ONLY)?;
-    let mut stmt = conn.prepare("SELECT hash FROM player")?;
-    let res = stmt.query_one([], |row| {
+    let mut stmt = conn.prepare("SELECT hash FROM player WHERE id = ?1")?;
+    let res = stmt.query_one([username], |row| {
         let ref_hash: String = row.get(0)?;
         let digest = md5::compute(password);
         let password_hash = format!("{:x}", digest);

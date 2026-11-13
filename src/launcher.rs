@@ -17,6 +17,8 @@ fn set_launcher_initial_values(app_globals: &ApplicationGlobal, launcher_config:
     app_globals.set_disable_score_save(launcher_config.disable_score);
     app_globals.set_darkmode(launcher_config.dark_mode);
     app_globals.set_language(launcher_config.language.clone() as i32);
+    app_globals.set_difficulty_table_output_dir(launcher_config.difficulty_table_output_dir.clone().into());
+    app_globals.set_difficulty_tablelist_url(launcher_config.difficulty_tablelist_url.clone().into());
     //TODO: actually set the application language to the selected one here
 
     app_globals.set_gametype(game_type.typ);

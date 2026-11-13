@@ -7,6 +7,7 @@ mod player;
 mod process;
 mod utils;
 mod openlr2;
+mod difficulty_table;
 
 use slint::{CloseRequestResponse, Model, ModelRc, VecModel, run_event_loop};
 use std::{path::PathBuf, rc::Rc, sync::{Arc, Mutex}};
@@ -26,7 +27,9 @@ pub fn main() {
     let launcher_config_arc = Arc::new(Mutex::new(launcher_config));
     let openlr2_config_arc = Arc::new(Mutex::new(openlr2_config));
 
-    setup_callbacks(&app, config_arc, launcher_config_arc, openlr2_config_arc);
+    let difficulty_table_state = difficulty_table::ui::State::new();
+    setup_callbacks(&app, config_arc, launcher_config_arc, openlr2_config_arc, &difficulty_table_state);
+    difficulty_table::ui::load_installed(&app, &difficulty_table_state);
 
     if app.global::<ApplicationGlobal>().get_players().row_count() == 0 {
         player::show_new_player_window(&app);
@@ -37,7 +40,13 @@ pub fn main() {
     app.hide().unwrap();
 }
 
-fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_config: Arc<Mutex<config::Config>>, openlr2_config: Arc<Mutex<openlr2_config::Config>>) {
+fn setup_callbacks(
+    app: &App,
+    config: Arc<Mutex<lr2_config::Config>>,
+    launcher_config: Arc<Mutex<config::Config>>,
+    openlr2_config: Arc<Mutex<openlr2_config::Config>>,
+    difficulty_table_state: &difficulty_table::ui::State,
+) {
     app.on_audio_type_change({
         let app_weak = app.as_weak();
 
@@ -241,6 +250,8 @@ fn setup_callbacks(app: &App, config: Arc<Mutex<lr2_config::Config>>, launcher_c
             status.is_ok()
         }
     });
+
+    difficulty_table::ui::setup_callbacks(app, config.clone(), launcher_config.clone(), difficulty_table_state);
 
     app.window().on_close_requested({
         let app_weak = app.as_weak();

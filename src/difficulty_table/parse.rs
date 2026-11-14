@@ -31,20 +31,19 @@ pub fn extract_bmstable_meta(html: &str) -> Option<String> {
     let mut search_from = 0;
     while let Some(rel) = lower[search_from..].find("bmstable") {
         let abs = search_from + rel;
-        // find nearest <meta before this
-        let window_start = abs.saturating_sub(200);
-        let window = &html[window_start..abs.min(html.len())];
+        let window_start = html.floor_char_boundary(abs.saturating_sub(200));
+        let abs_end = abs.min(html.len());
+        let window = &html[window_start..abs_end];
         if !window.to_ascii_lowercase().contains("<meta") {
             search_from = abs + 8;
             continue;
         }
-        // look ahead for content=
-        let after = &html[abs..];
+        let after = &html[abs_end..];
         if let Some(content) = extract_attr(after, "content") {
             return Some(content);
         }
-        // content may appear before name
-        let before = &html[window_start..abs + 80.min(html.len() - abs)];
+        let before_end = html.ceil_char_boundary((abs + 80).min(html.len()));
+        let before = &html[window_start..before_end];
         if let Some(content) = extract_attr(before, "content") {
             return Some(content);
         }
@@ -67,8 +66,12 @@ fn extract_attr(s: &str, attr: &str) -> Option<String> {
     Some(rest[1..1 + end].to_string())
 }
 
+fn strip_bom(text: &str) -> &str {
+    text.strip_prefix('\u{feff}').unwrap_or(text)
+}
+
 pub fn parse_header_json(text: &str) -> Result<TableHeader> {
-    let v: Value = serde_json::from_str(text)?;
+    let v: Value = serde_json::from_str(strip_bom(text))?;
     let name = v
         .get("name")
         .and_then(|x| x.as_str())
@@ -106,7 +109,7 @@ struct ChartRaw {
 }
 
 pub fn parse_data_json(text: &str) -> Result<Vec<TableChart>> {
-    let raw: Vec<ChartRaw> = serde_json::from_str(text)?;
+    let raw: Vec<ChartRaw> = serde_json::from_str(strip_bom(text))?;
     let mut out = Vec::new();
     for c in raw {
         let md5 = match c.md5 {
@@ -131,7 +134,7 @@ pub fn parse_data_json(text: &str) -> Result<Vec<TableChart>> {
 }
 
 pub fn parse_tablelist_json(text: &str) -> Result<Vec<TableListItem>> {
-    let v: Value = serde_json::from_str(text)?;
+    let v: Value = serde_json::from_str(strip_bom(text))?;
     let arr = match v {
         Value::Array(a) => a,
         Value::Object(o) => o

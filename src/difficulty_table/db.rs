@@ -27,23 +27,6 @@ pub fn open_song_db(game_dir: &Path) -> Result<Connection> {
         bail!("song.db not found at {}", path.display());
     }
     let conn = Connection::open(path)?;
-
-    // Recreate if leftover wide-schema prototype under ll_* names.
-    let needs_reset = conn
-        .prepare("SELECT symbol FROM ll_playlist LIMIT 1")
-        .is_ok()
-        || conn
-            .prepare("SELECT is_removed FROM ll_playlist_entry LIMIT 1")
-            .is_ok();
-    if needs_reset {
-        conn.execute_batch(
-            r#"
-            DROP TABLE IF EXISTS ll_playlist_entry;
-            DROP TABLE IF EXISTS ll_playlist;
-            "#,
-        )?;
-    }
-
     conn.execute_batch(
         r#"
         CREATE TABLE IF NOT EXISTS ll_playlist (

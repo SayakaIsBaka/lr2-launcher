@@ -75,7 +75,7 @@ pub fn add_or_refresh_table(
     };
     let level_folders: Vec<String> = level_order
         .iter()
-        .map(|l| parse::folder_name_for_level(l))
+        .map(|l| parse::folder_name_for_level(l, &header.symbol))
         .collect();
 
     let mut safe_name: String = header
@@ -122,7 +122,8 @@ pub fn add_or_refresh_table(
         db::delete_playlist(&tx, existing_id)?;
     }
 
-    let playlist_id = db::insert_playlist(&tx, &header.name, page_url, &table_dir_str)?;
+    let playlist_id =
+        db::insert_playlist(&tx, &header.name, &header.symbol, page_url, &table_dir_str)?;
 
     let mut entries = Vec::with_capacity(charts.len());
     for c in &charts {
@@ -130,7 +131,7 @@ pub fn add_or_refresh_table(
             playlist_id,
             md5: c.md5.clone(),
             title: c.title.clone(),
-            folder: parse::folder_name_for_level(&c.level),
+            folder: parse::folder_name_for_level(&c.level, &header.symbol),
             adddate,
         });
     }
@@ -142,6 +143,7 @@ pub fn add_or_refresh_table(
     Ok(PlaylistRow {
         playlist_id,
         name: header.name,
+        symbol: header.symbol,
         page_url: page_url.to_string(),
         output_dir: table_dir_str,
     })

@@ -6,6 +6,7 @@ use rusqlite::{Connection, OptionalExtension, params};
 pub struct PlaylistRow {
     pub playlist_id: i64,
     pub name: String,
+    pub symbol: String,
     pub page_url: String,
     #[allow(dead_code)]
     pub output_dir: String,
@@ -48,6 +49,7 @@ pub fn open_song_db(game_dir: &Path) -> Result<Connection> {
         CREATE TABLE IF NOT EXISTS ll_playlist (
             playlist_id integer primary key autoincrement not null,
             name text not null,
+            symbol text not null default '',
             page_url text not null unique,
             output_dir text not null
         );
@@ -76,15 +78,16 @@ pub fn open_song_db(game_dir: &Path) -> Result<Connection> {
 
 pub fn list_playlists(conn: &Connection) -> Result<Vec<PlaylistRow>> {
     let mut stmt = conn.prepare(
-        r#"SELECT playlist_id, name, page_url, output_dir
+        r#"SELECT playlist_id, name, symbol, page_url, output_dir
            FROM ll_playlist ORDER BY playlist_id"#,
     )?;
     let rows = stmt.query_map([], |row| {
         Ok(PlaylistRow {
             playlist_id: row.get(0)?,
             name: row.get(1)?,
-            page_url: row.get(2)?,
-            output_dir: row.get(3)?,
+            symbol: row.get(2)?,
+            page_url: row.get(3)?,
+            output_dir: row.get(4)?,
         })
     })?;
     let mut out = Vec::new();
@@ -120,13 +123,14 @@ pub fn delete_playlist(conn: &Connection, playlist_id: i64) -> Result<()> {
 pub fn insert_playlist(
     conn: &Connection,
     name: &str,
+    symbol: &str,
     page_url: &str,
     output_dir: &str,
 ) -> Result<i64> {
     conn.execute(
-        r#"INSERT INTO ll_playlist (name, page_url, output_dir)
-           VALUES (?1, ?2, ?3)"#,
-        params![name, page_url, output_dir],
+        r#"INSERT INTO ll_playlist (name, symbol, page_url, output_dir)
+           VALUES (?1, ?2, ?3, ?4)"#,
+        params![name, symbol, page_url, output_dir],
     )?;
     Ok(conn.last_insert_rowid())
 }

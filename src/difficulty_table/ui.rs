@@ -63,13 +63,18 @@ fn apply_tablelist_filter(app_globals: &ApplicationGlobal, full: &TableList, fil
     let items: Vec<StandardListViewItem> = view
         .iter()
         .map(|r| {
-            let tags = match (r.tag1.is_empty(), r.tag2.is_empty()) {
+            let tag = match (r.tag1.is_empty(), r.tag2.is_empty()) {
                 (true, true) => String::new(),
                 (false, true) => format!("[{}] ", r.tag1),
                 (true, false) => format!("[{}] ", r.tag2),
                 (false, false) => format!("[{}/{}] ", r.tag1, r.tag2),
             };
-            StandardListViewItem::from(format!("{tags}{}", r.name).as_str())
+            let symbol = if r.symbol.is_empty() {
+                String::new()
+            } else {
+                format!("({}) ", r.symbol)
+            };
+            StandardListViewItem::from(format!("{tag}{symbol}{}", r.name).as_str())
         })
         .collect();
     app_globals.set_difficulty_tablelist_items(VecModel::from_slice(&items));
@@ -82,7 +87,14 @@ fn reload_installed_ui(app_globals: &ApplicationGlobal, lr2_folder_path: &std::p
         Ok(rows) => {
             let items: Vec<StandardListViewItem> = rows
                 .iter()
-                .map(|r| StandardListViewItem::from(format!("{}  ({})", r.name, r.page_url).as_str()))
+                .map(|r| {
+                    let label = if r.symbol.is_empty() {
+                        format!("{}  ({})", r.name, r.page_url)
+                    } else {
+                        format!("({}) {}  ({})", r.symbol, r.name, r.page_url)
+                    };
+                    StandardListViewItem::from(label.as_str())
+                })
                 .collect();
             app_globals.set_difficulty_tables(VecModel::from_slice(&items));
             *installed.lock().unwrap() = rows;

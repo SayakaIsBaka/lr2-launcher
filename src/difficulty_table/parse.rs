@@ -11,6 +11,7 @@ use std::sync::LazyLock;
 #[derive(Debug, Clone, Default)]
 pub struct TableHeader {
     pub name: String,
+    pub symbol: String,
     pub data_url: String,
     pub level_order: Vec<String>,
 }
@@ -135,6 +136,11 @@ pub fn parse_header_json(text: &str) -> Result<TableHeader> {
         .and_then(|x| x.as_str())
         .unwrap_or("Untitled")
         .to_string();
+    let symbol = v
+        .get("symbol")
+        .and_then(|x| x.as_str())
+        .unwrap_or("")
+        .to_string();
     let data_url = v
         .get("data_url")
         .and_then(|x| x.as_str())
@@ -154,6 +160,7 @@ pub fn parse_header_json(text: &str) -> Result<TableHeader> {
     }
     Ok(TableHeader {
         name,
+        symbol,
         data_url,
         level_order,
     })
@@ -296,6 +303,6 @@ pub fn filter_tablelist_items(
         .collect()
 }
 
-pub fn folder_name_for_level(level: &str) -> String {
-    format!("LEVEL {level}")
+pub fn folder_name_for_level(level: &str, symbol: &str) -> String {
+    format!("{symbol}{level}")
 }

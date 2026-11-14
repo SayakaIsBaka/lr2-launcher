@@ -492,33 +492,40 @@ pub fn setup_callbacks(
         let installed = installed.clone();
 
         move |selected| {
-            let app = app_weak.unwrap();
-            let app_globals = app.global::<ApplicationGlobal>();
+            let _app = app_weak.unwrap();
             let rows = installed.lock().unwrap();
             let idx = usize::try_from(selected).unwrap_or(usize::MAX);
             let Some(row) = rows.get(idx) else {
-                show_error(&app_globals, "Invalid selection");
+                show_error_later(app_weak.clone(), "Invalid selection");
                 return;
             };
             let id = row.playlist_id;
             let name = row.name.clone();
             drop(rows);
 
-            match rfd::MessageDialog::new()
-                .set_buttons(rfd::MessageButtons::YesNo)
-                .set_level(rfd::MessageLevel::Warning)
-                .set_title(app_globals.get_window_title())
-                .set_description(format!("Remove difficulty table \"{name}\"?")).show()
-            {
-                rfd::MessageDialogResult::Yes => {
-                    let lr2_folder_path = lr2_folder_from_globals(&app_globals);
-                    match difficulty_table::remove_table(&lr2_folder_path, id) {
-                        Ok(()) => reload_installed_ui(&app_globals, &lr2_folder_path, &installed),
-                        Err(e) => show_error(&app_globals, e),
+            let installed = installed.clone();
+            let app_weak = app_weak.clone();
+            slint::Timer::single_shot(std::time::Duration::from_millis(50), move || {
+                let Some(app) = app_weak.upgrade() else {
+                    return;
+                };
+                let app_globals = app.global::<ApplicationGlobal>();
+                match rfd::MessageDialog::new()
+                    .set_buttons(rfd::MessageButtons::YesNo)
+                    .set_level(rfd::MessageLevel::Warning)
+                    .set_title(app_globals.get_window_title())
+                    .set_description(format!("Remove difficulty table \"{name}\"?")).show()
+                {
+                    rfd::MessageDialogResult::Yes => {
+                        let lr2_folder_path = lr2_folder_from_globals(&app_globals);
+                        match difficulty_table::remove_table(&lr2_folder_path, id) {
+                            Ok(()) => reload_installed_ui(&app_globals, &lr2_folder_path, &installed),
+                            Err(e) => show_error(&app_globals, e),
+                        }
                     }
+                    _ => {}
                 }
-                _ => {}
-            }
+            });
         }
     });
 }

@@ -1,0 +1,122 @@
+import {
+    Button,
+    HorizontalBox,
+    GroupBox,
+    VerticalBox,
+    LineEdit,
+    StandardListView,
+    ComboBox,
+} from "std-widgets.slint";
+
+import { Page } from "page.slint";
+import { ApplicationGlobal } from "../globals.slint";
+import { BusySpinner } from "../components/busy_spinner.slint";
+
+export component DifficultyTablesBrowsePage inherits Page {
+    title: @tr("Add tables");
+
+    callback add_by_url(url: string);
+    callback load_tablelist();
+    callback filter_tablelist();
+    callback add_tablelist_selected(selected-item: int);
+
+    private property <bool> network-busy:
+        ApplicationGlobal.difficulty_tablelist_loading || ApplicationGlobal.difficulty_table_adding;
+
+    VerticalBox {
+        GroupBox {
+            title: @tr("Add by URL");
+            vertical-stretch: 0;
+            HorizontalBox {
+                url-edit := LineEdit {
+                    placeholder-text: @tr("https://example.com/table.html");
+                    horizontal-stretch: 1;
+                    enabled: !root.network-busy;
+                }
+                if ApplicationGlobal.difficulty_table_adding: BusySpinner { }
+                Button {
+                    text: ApplicationGlobal.difficulty_table_adding ? @tr("Adding…") : @tr("Add");
+                    enabled: !root.network-busy;
+                    clicked => { root.add_by_url(url-edit.text); }
+                }
+            }
+        }
+
+        GroupBox {
+            title: @tr("Table list");
+            vertical-stretch: 1;
+            VerticalBox {
+                HorizontalBox {
+                    LineEdit {
+                        text <=> ApplicationGlobal.difficulty_tablelist_url;
+                        placeholder-text: @tr("tablelist JSON URL or local .json path");
+                        horizontal-stretch: 1;
+                        enabled: !ApplicationGlobal.difficulty_tablelist_loading;
+                    }
+                    if ApplicationGlobal.difficulty_tablelist_loading: BusySpinner { }
+                    Button {
+                        text: ApplicationGlobal.difficulty_tablelist_loading ? @tr("Loading…") : @tr("Load");
+                        enabled: !root.network-busy;
+                        clicked => { root.load_tablelist(); }
+                    }
+                }
+                HorizontalBox {
+                    Text {
+                        text: @tr("tag1");
+                        vertical-alignment: center;
+                    }
+                    ComboBox {
+                        horizontal-stretch: 1;
+                        model: ApplicationGlobal.difficulty_tablelist_tag1_options;
+                        current-index <=> ApplicationGlobal.difficulty_tablelist_tag1_index;
+                        enabled: !root.network-busy;
+                        selected => { root.filter_tablelist(); }
+                    }
+                    Text {
+                        text: @tr("tag2");
+                        vertical-alignment: center;
+                    }
+                    ComboBox {
+                        horizontal-stretch: 1;
+                        model: ApplicationGlobal.difficulty_tablelist_tag2_options;
+                        current-index <=> ApplicationGlobal.difficulty_tablelist_tag2_index;
+                        enabled: !root.network-busy;
+                        selected => { root.filter_tablelist(); }
+                    }
+                }
+                HorizontalBox {
+                    LineEdit {
+                        text <=> ApplicationGlobal.difficulty_tablelist_search;
+                        placeholder-text: @tr("Search name / symbol…");
+                        horizontal-stretch: 1;
+                        enabled: !root.network-busy;
+                        edited => { root.filter_tablelist(); }
+                    }
+                    Text {
+                        text: ApplicationGlobal.difficulty_tablelist_status;
+                        vertical-alignment: center;
+                    }
+                }
+                tablelist := StandardListView {
+                    vertical-stretch: 1;
+                    min-height: 360px;
+                    model: ApplicationGlobal.difficulty_tablelist_items;
+                }
+                HorizontalBox {
+                    if ApplicationGlobal.difficulty_table_adding: BusySpinner { }
+                    Button {
+                        text: ApplicationGlobal.difficulty_table_adding ? @tr("Adding…") : @tr("Add selected");
+                        enabled: tablelist.current-item != -1 && !root.network-busy;
+                        clicked => { root.add_tablelist_selected(tablelist.current-item); }
+                    }
+                    Text {
+                        text: ApplicationGlobal.difficulty_table_status;
+                        vertical-alignment: center;
+                        horizontal-stretch: 1;
+                        wrap: word-wrap;
+                    }
+                }
+            }
+        }
+    }
+}

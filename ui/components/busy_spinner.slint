@@ -1,0 +1,28 @@
+export component BusySpinner inherits Rectangle {
+    in property <length> size: 14px;
+    width: root.size;
+    min-height: root.size;
+    vertical-stretch: 1;
+    background: transparent;
+
+    Rectangle {
+        width: root.size;
+        height: root.size;
+        x: 0;
+        y: (parent.height - self.height) / 2;
+        border-radius: root.size / 2;
+        border-width: 2px;
+        border-color: #6666;
+
+        Rectangle {
+            width: 2px;
+            height: parent.height / 2;
+            x: (parent.width - self.width) / 2;
+            y: 1px;
+            background: #ddd;
+            border-radius: 1px;
+        }
+
+        transform-rotation: mod(animation-tick(), 800ms) / 800ms * 360deg;
+    }
+}

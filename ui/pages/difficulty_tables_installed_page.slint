@@ -1,0 +1,92 @@
+import {
+    Button,
+    HorizontalBox,
+    GroupBox,
+    VerticalBox,
+    LineEdit,
+    StandardListView,
+} from "std-widgets.slint";
+
+import { Page } from "page.slint";
+import { ApplicationGlobal } from "../globals.slint";
+import { BusySpinner } from "../components/busy_spinner.slint";
+
+export component DifficultyTablesInstalledPage inherits Page {
+    title: @tr("Installed tables");
+
+    callback pick_output_dir();
+    callback reload_installed();
+    callback refresh_selected(selected-item: int);
+    callback refresh_all();
+    callback remove_selected(selected-item: int);
+
+    private property <bool> network-busy:
+        ApplicationGlobal.difficulty_tablelist_loading || ApplicationGlobal.difficulty_table_adding;
+
+    VerticalBox {
+        GroupBox {
+            title: @tr("Output folder");
+            vertical-stretch: 0;
+            VerticalBox {
+                HorizontalBox {
+                    LineEdit {
+                        text <=> ApplicationGlobal.difficulty_table_output_dir;
+                        placeholder-text: @tr("Pick a folder registered (or to be added) in Jukebox");
+                        horizontal-stretch: 1;
+                        vertical-stretch: 0;
+                    }
+                    Button {
+                        text: @tr("Browse...");
+                        enabled: !root.network-busy;
+                        clicked => { root.pick_output_dir(); }
+                    }
+                }
+                Text {
+                    text: @tr("Each table is written as a subfolder of this path. The path is added to Jukebox if missing.");
+                    wrap: word-wrap;
+                }
+            }
+        }
+
+        GroupBox {
+            title: @tr("Installed tables");
+            vertical-stretch: 1;
+            VerticalBox {
+                installed := StandardListView {
+                    vertical-stretch: 1;
+                    min-height: 360px;
+                    model: ApplicationGlobal.difficulty_tables;
+                }
+                HorizontalBox {
+                    if ApplicationGlobal.difficulty_table_adding: BusySpinner { }
+                    Button {
+                        text: @tr("Reload");
+                        enabled: !root.network-busy;
+                        clicked => { root.reload_installed(); }
+                    }
+                    Button {
+                        text: @tr("Refresh");
+                        enabled: installed.current-item != -1 && !root.network-busy;
+                        clicked => { root.refresh_selected(installed.current-item); }
+                    }
+                    Button {
+                        text: ApplicationGlobal.difficulty_table_adding ? @tr("Refreshing…") : @tr("Refresh all");
+                        enabled: ApplicationGlobal.difficulty_tables.length > 0 && !root.network-busy;
+                        clicked => { root.refresh_all(); }
+                    }
+                    Button {
+                        text: @tr("Remove");
+                        enabled: installed.current-item != -1 && !root.network-busy;
+                        clicked => { root.remove_selected(installed.current-item); }
+                    }
+                    Text {
+                        text: ApplicationGlobal.difficulty_table_status;
+                        vertical-alignment: center;
+                        horizontal-stretch: 1;
+                        wrap: word-wrap;
+                    }
+                }
+            }
+        }
+    }
+}

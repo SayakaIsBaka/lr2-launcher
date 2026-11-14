@@ -35,13 +35,7 @@ pub fn resolve_url(base: &str, relative: &str) -> Result<String> {
     let base_dir = if base.ends_with('/') {
         base.to_string()
     } else if let Some(idx) = base.rfind('/') {
-        let after = &base[idx + 1..];
-        let after_path = after.split('?').next().unwrap_or(after);
-        if after_path.contains('.') {
-            base[..idx + 1].to_string()
-        } else {
-            format!("{base}/")
-        }
+        base[..idx + 1].to_string()
     } else {
         bail!("Invalid base URL: {base}");
     };
@@ -58,5 +52,39 @@ pub fn resolve_url(base: &str, relative: &str) -> Result<String> {
         Ok(format!("{}{}", &base[..host_end], relative))
     } else {
         Ok(format!("{base_dir}{relative}"))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn resolve_trailing_slash_dir() {
+        assert_eq!(
+            resolve_url("https://example.com/table/", "header.json").unwrap(),
+            "https://example.com/table/header.json"
+        );
+    }
+
+    #[test]
+    fn resolve_html_file_base() {
+        assert_eq!(
+            resolve_url("https://example.com/tables/page.html", "header.json").unwrap(),
+            "https://example.com/tables/header.json"
+        );
+    }
+
+    #[test]
+    fn resolve_extensionless_not_kept_as_dir() {
+        // joverjoy: page URL has no final slash; meta is relative to parent.
+        assert_eq!(
+            resolve_url(
+                "https://firiex.com/tables/joverjoy",
+                "joverjoy/header.json"
+            )
+            .unwrap(),
+            "https://firiex.com/tables/joverjoy/header.json"
+        );
     }
 }

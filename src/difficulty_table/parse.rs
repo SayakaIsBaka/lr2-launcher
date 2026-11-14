@@ -1,6 +1,12 @@
 use anyhow::{Result, bail};
+use quick_xml::XmlVersion;
+use quick_xml::events::{BytesStart, Event};
+use quick_xml::name::QName;
+use quick_xml::reader::Reader;
+use regex::Regex;
 use serde::Deserialize;
 use serde_json::Value;
+use std::sync::LazyLock;
 
 #[derive(Debug, Clone, Default)]
 pub struct TableHeader {
@@ -25,45 +31,97 @@ pub struct TableListItem {
     pub symbol: String,
 }
 
+/// Prefer quick-xml (HTML-tolerant). Fall back to regex when XML scan fails/misses.
 pub fn extract_bmstable_meta(html: &str) -> Option<String> {
-    // Prefer name="bmstable" ... content="..."
-    let lower = html.to_ascii_lowercase();
-    let mut search_from = 0;
-    while let Some(rel) = lower[search_from..].find("bmstable") {
-        let abs = search_from + rel;
-        let window_start = html.floor_char_boundary(abs.saturating_sub(200));
-        let abs_end = abs.min(html.len());
-        let window = &html[window_start..abs_end];
-        if !window.to_ascii_lowercase().contains("<meta") {
-            search_from = abs + 8;
-            continue;
-        }
-        let after = &html[abs_end..];
-        if let Some(content) = extract_attr(after, "content") {
-            return Some(content);
-        }
-        let before_end = html.ceil_char_boundary((abs + 80).min(html.len()));
-        let before = &html[window_start..before_end];
-        if let Some(content) = extract_attr(before, "content") {
-            return Some(content);
-        }
-        search_from = abs + 8;
+    let mut reader = Reader::from_str(html);
+    {
+        let cfg = reader.config_mut();
+        cfg.check_end_names = false;
+        cfg.allow_unmatched_ends = true;
+        cfg.allow_dangling_amp = true;
+        cfg.trim_text(true);
     }
-    None
+
+    loop {
+        let decoder = reader.decoder();
+        match reader.read_event() {
+            Ok(Event::Eof) => break,
+            Ok(Event::Empty(ref e)) => {
+                if let Some(content) = bmstable_content_from_meta(e, decoder) {
+                    return Some(content);
+                }
+            }
+            Ok(Event::Start(ref e)) => {
+                let skip_raw = e.local_name().as_ref().eq_ignore_ascii_case(b"script")
+                    || e.local_name().as_ref().eq_ignore_ascii_case(b"style");
+                let content = bmstable_content_from_meta(e, decoder);
+                let raw_name = skip_raw.then(|| e.name().as_ref().to_owned());
+                if let Some(content) = content {
+                    return Some(content);
+                }
+                if let Some(name) = raw_name {
+                    let _ = reader.read_to_end(QName(&name));
+                }
+            }
+            Ok(_) => {}
+            Err(_) => break,
+        }
+    }
+    extract_bmstable_via_regex(html)
 }
 
-fn extract_attr(s: &str, attr: &str) -> Option<String> {
-    let lower = s.to_ascii_lowercase();
-    let key = format!("{attr}=");
-    let idx = lower.find(&key)?;
-    let rest = &s[idx + key.len()..];
-    let rest = rest.trim_start();
-    let quote = rest.chars().next()?;
-    if quote != '"' && quote != '\'' {
+fn bmstable_content_from_meta(
+    e: &BytesStart<'_>,
+    decoder: quick_xml::Decoder,
+) -> Option<String> {
+    if !e.local_name().as_ref().eq_ignore_ascii_case(b"meta") {
         return None;
     }
-    let end = rest[1..].find(quote)?;
-    Some(rest[1..1 + end].to_string())
+    let mut name_is_bmstable = false;
+    let mut content: Option<String> = None;
+    for attr in e.html_attributes().with_checks(false).flatten() {
+        let key = attr.key.local_name();
+        let Ok(val) = attr.decoded_and_normalized_value(XmlVersion::Implicit1_0, decoder) else {
+            continue;
+        };
+        if key.as_ref().eq_ignore_ascii_case(b"name") && val.eq_ignore_ascii_case("bmstable") {
+            name_is_bmstable = true;
+        } else if key.as_ref().eq_ignore_ascii_case(b"content") {
+            content = Some(val.into_owned());
+        }
+    }
+    if name_is_bmstable {
+        content.filter(|c| !c.is_empty())
+    } else {
+        None
+    }
+}
+
+static BMSTABLE_META_REGEXES: LazyLock<[Regex; 2]> = LazyLock::new(|| {
+    [
+        // <meta name="bmstable" content="header.json">
+        Regex::new(
+            r#"(?i)<meta[^>]+name\s*=\s*["']?bmstable["']?[^>]*content\s*=\s*["']([^"'\s>]+)["']?"#,
+        )
+        .expect("bmstable name-first regex"),
+        // <meta content="header.json" name="bmstable">
+        Regex::new(
+            r#"(?i)<meta[^>]+content\s*=\s*["']([^"'\s>]+)["']?[^>]*name\s*=\s*["']?bmstable["']?"#,
+        )
+        .expect("bmstable content-first regex"),
+    ]
+});
+
+fn extract_bmstable_via_regex(html: &str) -> Option<String> {
+    for re in BMSTABLE_META_REGEXES.iter() {
+        if let Some(caps) = re.captures(html) {
+            let content = caps.get(1)?.as_str();
+            if !content.is_empty() {
+                return Some(content.to_string());
+            }
+        }
+    }
+    None
 }
 
 fn strip_bom(text: &str) -> &str {

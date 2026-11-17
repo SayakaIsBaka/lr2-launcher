@@ -32,6 +32,15 @@ pub struct Config {
     pub dark_mode: bool,
     pub language: Language,
     pub disable_score: bool,
+    #[serde(default)]
+    pub difficulty_table_output_dir: String,
+    #[serde(default = "default_tablelist_url")]
+    pub difficulty_tablelist_url: String,
+}
+
+fn default_tablelist_url() -> String {
+    // provide by darksabun; maybe should be changed in the future if deprecated
+    "https://script.google.com/macros/s/AKfycbzaQbcI9UZDcDlSHHl2NHilhmePrNrwxRdOFkmIXsfnbfksKKmAB3V65WZ8jPWU-7E/exec?table=tablelist".into()
 }
 
 impl Config {
@@ -61,6 +70,8 @@ pub fn generate_default_config(launcher_dir: &Path) -> Result<Config> {
         dark_mode: false,
         language: Language::English,
         disable_score: false,
+        difficulty_table_output_dir: String::new(),
+        difficulty_tablelist_url: default_tablelist_url(),
     };
     default_config.write(launcher_dir)?;
     Ok(default_config)
@@ -73,6 +84,10 @@ pub fn save_new_launcher_config(app_globals: &ApplicationGlobal, launcher_config
     launcher_config_new.disable_score = app_globals.get_disable_score_save();
     launcher_config_new.lr2_path = app_globals.get_lr2_path().to_string().into();
     launcher_config_new.language = app_globals.get_language().try_into().unwrap();
+    launcher_config_new.difficulty_table_output_dir =
+        app_globals.get_difficulty_table_output_dir().to_string();
+    launcher_config_new.difficulty_tablelist_url =
+        app_globals.get_difficulty_tablelist_url().to_string();
 
     let launcher_path = current_exe().unwrap();
     let launcher_dir = launcher_path.parent().unwrap();

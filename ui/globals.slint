@@ -22,6 +22,21 @@ export global ApplicationGlobal {
     // Jukebox
     in property <[StandardListViewItem]> jukebox_paths;
 
+    // Difficulty tables
+    in-out property <string> difficulty_table_output_dir;
+    in-out property <string> difficulty_tablelist_url;
+    in property <[StandardListViewItem]> difficulty_tables;
+    in property <[StandardListViewItem]> difficulty_tablelist_items;
+    in property <[string]> difficulty_tablelist_tag1_options;
+    in property <[string]> difficulty_tablelist_tag2_options;
+    in-out property <int> difficulty_tablelist_tag1_index;
+    in-out property <int> difficulty_tablelist_tag2_index;
+    in-out property <string> difficulty_tablelist_search;
+    in property <string> difficulty_tablelist_status;
+    in-out property <string> difficulty_table_status;
+    in-out property <bool> difficulty_tablelist_loading;
+    in-out property <bool> difficulty_table_adding;
+
     // Play
     in-out property <int> hsmin;
     in-out property <int> hsmax;

@@ -12,6 +12,7 @@ encoding_rs = "0.8.35"
 libloading = "0.9.0"
 md5 = "0.8.1"
 quick-xml = { version = "0.41.0", features = ["encoding", "serialize"] }
+regex = "1"
 rfd = "0.17.2"
 rusqlite = { version = "0.40.1", features = ["bundled"] }
 serde = "1.0.228"

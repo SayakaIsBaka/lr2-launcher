@@ -3,6 +3,8 @@ import {
     PlayOptionsPage,
     SystemOptionsPage,
     JukeboxPage,
+    DifficultyTablesInstalledPage,
+    DifficultyTablesBrowsePage,
     OpenLR2Page,
 } from "pages/pages.slint";
 import { SideBar } from "side_bar.slint";
@@ -15,8 +17,8 @@ export { ApplicationGlobal }
 export { NewUser } from "new_user.slint";
 
 export component App inherits Window {
-    preferred-width: 800px;
-    preferred-height: 650px;
+    preferred-width: 900px;
+    preferred-height: 780px;
     default-font-family: "Segoe UI";
     title: ApplicationGlobal.window_title;
     //icon: @image-url("../../logo/slint-logo-small-light.png");
@@ -31,6 +33,15 @@ export component App inherits Window {
     callback launch_game();
     callback check_for_openlr2_updates(current-version: string, is-64bit: bool) -> UpdateCheckResult;
     callback install_openlr2_update(download-link: string) -> bool;
+    callback difficulty_table_pick_output_dir();
+    callback difficulty_table_reload_installed();
+    callback difficulty_table_add_by_url(url: string);
+    callback difficulty_table_load_tablelist();
+    callback difficulty_table_filter_tablelist();
+    callback difficulty_table_add_tablelist_selected(selected-item: int);
+    callback difficulty_table_refresh_selected(selected-item: int);
+    callback difficulty_table_refresh_all();
+    callback difficulty_table_remove_selected(selected-item: int);
 
     HorizontalLayout {
         side-bar := SideBar {
@@ -42,6 +53,8 @@ export component App inherits Window {
                     [
                         @tr("Menu" => "Home"),
                         @tr("Menu" => "Jukebox"),
+                        @tr("Menu" => "Installed tables"),
+                        @tr("Menu" => "Add tables"),
                         @tr("Menu" => "Play options"),
                         @tr("Menu" => "System options"),
                         @tr("Menu" => "OpenLR2 options")
@@ -50,6 +63,8 @@ export component App inherits Window {
                     [
                         @tr("Menu" => "Home"),
                         @tr("Menu" => "Jukebox"),
+                        @tr("Menu" => "Installed tables"),
+                        @tr("Menu" => "Add tables"),
                         @tr("Menu" => "Play options"),
                         @tr("Menu" => "System options")
                     ]
@@ -83,9 +98,22 @@ export component App inherits Window {
                 jukebox_add => {root.jukebox_add()};
                 jukebox_del(selected-item) => {root.jukebox_del(selected-item)};
             }
-            if(side-bar.current-item == 2): PlayOptionsPage { }
-            if(side-bar.current-item == 3): SystemOptionsPage { audio_type_change => {root.audio_type_change();} }
-            if(side-bar.current-item == 4 && ApplicationGlobal.gametype == GameType.OpenLR2): OpenLR2Page { }
+            if(side-bar.current-item == 2): DifficultyTablesInstalledPage {
+                pick_output_dir => { root.difficulty_table_pick_output_dir(); }
+                reload_installed => { root.difficulty_table_reload_installed(); }
+                refresh_selected(selected-item) => { root.difficulty_table_refresh_selected(selected-item); }
+                refresh_all => { root.difficulty_table_refresh_all(); }
+                remove_selected(selected-item) => { root.difficulty_table_remove_selected(selected-item); }
+            }
+            if(side-bar.current-item == 3): DifficultyTablesBrowsePage {
+                add_by_url(url) => { root.difficulty_table_add_by_url(url); }
+                load_tablelist => { root.difficulty_table_load_tablelist(); }
+                filter_tablelist => { root.difficulty_table_filter_tablelist(); }
+                add_tablelist_selected(selected-item) => { root.difficulty_table_add_tablelist_selected(selected-item); }
+            }
+            if(side-bar.current-item == 4): PlayOptionsPage { }
+            if(side-bar.current-item == 5): SystemOptionsPage { audio_type_change => {root.audio_type_change();} }
+            if(side-bar.current-item == 6 && ApplicationGlobal.gametype == GameType.OpenLR2): OpenLR2Page { }
         }
     }
 
